@@ -1,0 +1,131 @@
+---
+title: "How to Log Both JavaScript and C++ in Node.js Using LLDB"
+description: "Learn how to debug Node.js applications by logging in both JavaScript and C++ layers using LLDB."
+pubDate: 'Jun 01 2024'
+type: Blog
+tag: coding
+status: published
+heroImage: "/blog-placeholder-2.jpg"
+---
+
+
+## Introduction
+
+Node.js is a powerful platform that bridges the gap between JavaScript and C++ implementations. While working with the Node.js core or debugging specific issues, you may need to log data from both JavaScript and C++ layers. This guide explains how to achieve that using **LLDB**, a robust debugger for C++.
+
+---
+
+## Prerequisites
+
+Before we begin, ensure Node.js is built in debug mode to access debugging features.
+
+### Building Node.js in Debug Mode
+
+Run the following commands in your terminal to configure and build Node.js in debug mode:
+
+```bash
+./configure --debug --ninja
+make
+```
+
+---
+
+## Adding Logs in C++ Code
+
+In Node.js core, you can use `std::cout` to log messages in the C++ layer. For example:
+
+```cpp
+std::cout << "read in c++" << std::endl;
+```
+
+
+path: `node/src/node_file.cc`
+
+example:
+
+```c++
+static void Read(const FunctionCallbackInfo<Value>& args) {
+  Environment* env = Environment::GetCurrent(args);
+
+  std::cout << "read in c++" << std::endl; // Added log
+  
+  const int argc = args.Length();
+  CHECK_GE(argc, 5);
+
+```
+
+This log will print whenever the related C++ function is executed, helping you trace the flow in the native layer.
+
+---
+
+## Adding Logs in JavaScript Code
+
+In the JavaScript layer, you can add logs using `console.log`. For example:
+
+```javascript
+console.log('read in js');
+```
+
+path: `lib/fs.js`
+
+example:
+
+```javascript
+function read(fd, buffer, offsetOrOptions, length, position, callback) {
+  fd = getValidatedFd(fd);
+
+   console.log('read in js'); // Added log
+
+  let offset = offsetOrOptions;
+  let params = null;
+```
+
+This will log messages to the console whenever this part of the JavaScript code is executed.
+
+---
+
+## Debugging with LLDB
+
+After adding the logs, you can use **LLDB** to run and debug the Node.js application.
+
+### Steps to Debug
+
+1. **Launch LLDB**:
+   ```bash
+   lldb ./out/Release/node
+   ```
+
+2. **Set the Target**:
+   ```bash
+   target create "./out/Release/node"
+   ```
+
+3. **Run Your Test File**:
+   Use the `run` command to execute a specific test file:
+   ```bash
+   run test/parallel/test-fs-read.js
+   ```
+
+4. **Observe Logs**:
+   As the test runs, LLDB will display logs from both C++ and JavaScript layers.
+
+### Example Output
+
+Below is an example output showing logs from both layers:
+
+```
+read in c++
+read in js
+read in c++
+read in js
+read in c++
+Process exited with status = 0 (0x00000000)
+```
+
+---
+
+## Conclusion
+
+By combining `std::cout` in C++ and `console.log` in JavaScript, you can effectively debug Node.js applications. Using LLDB, you can trace logs across both layers, making it easier to identify and resolve issues in your application.
+
+Happy debugging!

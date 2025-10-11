@@ -1,0 +1,38 @@
+---
+title: 'NAPI-RS Nedir ve SWC İçin Nasıl Kullanılır?'
+description: >-
+  Bu yazıda, NAPI-RS'nin ne olduğunu ve SWC projesinde nasıl kullanıldığını ele alıyoruz. Özellikle hata formatlarının yapılandırılabilir hale getirilmesi üzerine yaptığım katkıyı da paylaşacağım.
+type: Blog
+pubDate: 'Jun 01 2024'
+tag: coding
+status: published
+heroImage: "/blog-placeholder-4.jpg"
+---
+
+## NAPI-RS Nedir?
+
+NAPI-RS, Rust dilinde yazılmış ve Node.js eklentileri geliştirmek için kullanılan bir kütüphanedir. Bu kütüphane, geliştiricilerin yüksek performanslı uygulamalar oluşturmasına olanak tanır ve JavaScript ile Rust arasındaki boşluğu doldurarak, iki dilin en iyi özelliklerinden faydalanmanızı sağlar.
+
+Node.js ile Rust'ı birleştirerek, büyük ölçekli ve performans odaklı uygulamalar geliştirmek mümkündür. NAPI-RS, bu konuda size rehberlik eden bir araçtır ve Rust ile geliştirilen kodların Node.js ile birlikte çalışmasını sağlar.
+
+## SWC İçin Yaptığım Katkı
+
+SWC, hızla büyüyen bir JavaScript/TypeScript derleyicisidir ve Rust ile yazılmıştır. SWC'ye katkı sağlarken, `minify_sync` fonksiyonunda hata formatlarını yapılandırılabilir hale getirmek üzerine çalıştım. Bu değişiklik, hata raporlama formatlarında esneklik sağlayarak geliştiricilere daha fazla kontrol sunmaktadır.
+
+### Katkım: Hata Formatlarının Yapılandırılabilir Hale Getirilmesi
+
+[İlgili PR](https://github.com/swc-project/swc/pull/9441)
+
+SWC projesine yaptığım katkı, hata formatlarının yapılandırılabilir hale getirilmesine odaklanıyor. İşte bu katkıya dair yaptığım değişikliklerin özeti:
+
+- `ErrorFormatConfig` enum'unu ekleyerek, `minify_sync` fonksiyonunda kullanılan `ErrorFormat` yapılandırmasını mümkün kıldım.
+- `minify_sync` fonksiyonuna isteğe bağlı bir `error_format` parametresi ekledim. Bu parametre, "normal", "json" veya "color" olarak ayarlanabilir.
+- Eğer `error_format` parametresi belirtilmezse, varsayılan olarak `ErrorFormat::Normal` kullanılır.
+- Bu değişiklik, hata formatlarını daha esnek hale getirerek geliştiricilere, ihtiyaçlarına göre farklı hata formatları kullanma imkanı sunar.
+
+### Kod Örneği
+
+Aşağıda, `minify_sync` fonksiyonunun nasıl kullanılabileceğine dair bir örnek bulunmaktadır:
+
+```typescript
+const result = minify_sync(codeBuffer, optsBuffer, "json");

@@ -1,0 +1,38 @@
+---
+title: 'What is NAPI-RS and How to Use It with SWC?'
+description: >-
+  In this post, we will explore what NAPI-RS is and how it is used in the SWC project. I will also share my contribution focused on making error formats configurable.
+type: Blog
+pubDate: 'Jun 01 2024'
+tag: coding
+status: published
+heroImage: "/blog-placeholder-5.jpg"
+---
+
+## What is NAPI-RS?
+
+NAPI-RS is a library written in Rust that is used to develop Node.js addons. This library allows developers to create high-performance applications and bridges the gap between JavaScript and Rust, enabling you to take advantage of the best features of both languages.
+
+By combining Node.js with Rust, it is possible to develop large-scale, performance-oriented applications. NAPI-RS serves as a guide in this area, ensuring that code developed with Rust can work seamlessly with Node.js.
+
+## My Contribution to SWC
+
+SWC is a rapidly growing JavaScript/TypeScript compiler written in Rust. While contributing to SWC, I worked on making error formats configurable in the `minify_sync` function. This change provides flexibility in error reporting formats, giving developers more control.
+
+### My Contribution: Making Error Formats Configurable
+
+[Related PR](https://github.com/swc-project/swc/pull/9441)
+
+The contribution I made to the SWC project focuses on making error formats configurable. Here’s a summary of the changes:
+
+- Added the `ErrorFormatConfig` enum to enable configuration of the `ErrorFormat` used in the `minify_sync` function.
+- Updated the `minify_sync` function to accept an optional `error_format` parameter, which can be set to "normal," "json," or "color."
+- If the `error_format` parameter is not provided, it defaults to `ErrorFormat::Normal`.
+- This change makes error formats more flexible, allowing developers to choose different error formats based on their needs.
+
+### Code Example
+
+Below is an example of how the `minify_sync` function can be used:
+
+```typescript
+const result = minify_sync(codeBuffer, optsBuffer, "json");

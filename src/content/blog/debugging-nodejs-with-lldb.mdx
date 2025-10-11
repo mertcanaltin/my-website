@@ -1,0 +1,61 @@
+---
+title: 'Debugging Node.js using LLDB'
+description: >-
+  Learn how to debug Node.js applications using the LLDB debugger to efficiently identify and resolve issues in your Node.js code.
+type: Blog
+pubDate: 'Jun 01 2024'
+tag: coding
+status: published
+heroImage: "/blog-placeholder-3.jpg"
+---
+
+Debugging Node.js applications can sometimes be a complex task, especially when dealing with issues that involve native C++ addons or low-level system interactions. LLDB, the debugger from the LLVM project, provides powerful tools to help you understand and resolve these issues. In this blog post, we will explore how to use LLDB to debug Node.js applications, covering setup, basic commands, and tips for effective debugging.
+
+## Setting Up LLDB for Node.js
+
+To start debugging Node.js with LLDB, you need to have LLDB installed on your system. LLDB comes pre-installed on macOS and can be installed on Linux via package managers like apt or yum. For Windows, you can use the LLVM installer.
+
+Once LLDB is installed, you can attach it to a running Node.js process or start a Node.js application within LLDB. Here's how you can do it:
+
+### Attaching to a Running Process
+
+1. Find the process ID (PID) of the running Node.js application:
+   ```sh
+   ps aux | grep node
+   ```
+
+2. Attach LLDB to the process using the PID:
+   ```sh
+   lldb -p <PID>
+   ```
+
+### Starting a Node.js Application with LLDB
+
+You can also start your Node.js application directly within LLDB:
+```sh
+lldb -- node <your_script.js>
+```
+
+## Basic LLDB Commands
+
+Once LLDB is attached to your Node.js process or your application is running within LLDB, you can use various commands to control and inspect your program:
+
+- `run`: Start executing the program.
+- `process attach --pid <PID>`: Attach to a running process by PID.
+- `breakpoint set -n <function_name>`: Set a breakpoint at a specific function.
+- `breakpoint set -f <file_name> -l <line_number>`: Set a breakpoint at a specific line in a file.
+- `continue`: Resume the execution of the program after hitting a breakpoint.
+- `next`: Execute the next line of code, stepping over function calls.
+- `step`: Step into functions to see what's happening inside.
+- `frame variable`: Display the variables in the current stack frame.
+- `print <variable_name>`: Print the value of a variable.
+
+## Tips for Effective Debugging
+
+1. **Set Breakpoints Judiciously**: Use breakpoints to pause execution and inspect the state of your application. This helps in understanding the flow and identifying issues.
+2. **Inspect Variables and Memory**: Use commands like `frame variable` and `print` to examine the values of variables and memory states.
+3. **Step Through Code**: Use `next` and `step` commands to walk through your code line by line and into function calls.
+4. **Analyze Stack Traces**: When your application crashes, use LLDB to examine the stack trace and understand where the crash occurred.
+5. **Use Watchpoints**: Set watchpoints on variables to break execution when their values change, helping to track down elusive bugs.
+
+By mastering these commands and techniques, you can effectively debug Node.js applications using LLDB, gaining deeper insights into your code and resolving issues more efficiently.
