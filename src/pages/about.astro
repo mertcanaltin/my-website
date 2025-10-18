@@ -1,39 +1,41 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 ---
 
-<Layout
-	title="About Me"
-	description="Software engineer, Node.js & Express.js member, and open source volunteer"
-	pubDate={new Date('August 08 2021')}
-	heroImage="/blog-placeholder-about.jpg"
->
-	<h2>Who is Mert Can Altin?</h2>
-	
-	<p>
-		Hello there! My name is Mert Can Altin, and I'm a member of the Node.js & Express.js community.
-	</p>
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="About Me" description="Software engineer, Node.js & Express.js member, and open source volunteer" />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>Who is Mert Can Altin?</h1>
+			<p>
+				Hello there! My name is Mert Can Altin, and I'm a member of the Node.js & Express.js community.
+			</p>
+			<p>
+				I am also a passionate open source volunteer.
+			</p>
+			<p>
+				I am a software engineer who builds and maintains frameworks using Node.js.
+			</p>
 
-	<p>
-		I am also a passionate open source volunteer.
-	</p>
+			<h2>Memberships</h2>
+			<ol>
+				<li><a href="https://github.com/openjs-foundation">OpenJS Foundation</a> CPC member</li>
+				<li><a href="https://github.com/nodejs/node">Node.js</a> member</li>
+				<li><a href="https://github.com/expressjs/express">Express.js</a> member</li>
+			</ol>
 
-	<p>
-		I am a software engineer who builds and maintains frameworks using Node.js.
-	</p>
-
-	<h2>Memberships</h2>
-	
-	<ol>
-		<li><a href="https://github.com/openjs-foundation">OpenJS Foundation</a> CPC member</li>
-		<li><a href="https://github.com/nodejs/node">Node.js</a> member</li>
-		<li><a href="https://github.com/expressjs/express">Express.js</a> member</li>
-	</ol>
-
-	<h2>Links</h2>
-	
-	<ul>
-		<li><a href="https://github.com/mertcanaltin">GitHub profile</a></li>
-		<li><a href="https://x.com/mecaltin">X profile</a></li>
-	</ul>
-</Layout>
+			<h2>Links</h2>
+			<ul>
+				<li><a href="https://github.com/mertcanaltin">GitHub profile</a></li>
+				<li><a href="https://x.com/mecaltin">X profile</a></li>
+			</ul>
+		</main>
+		<Footer />
+	</body>
+</html>
