@@ -1,0 +1,753 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+	.filter((p) => p.data.status === 'published')
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 3);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title="Mert Can Altin — Software Engineer"
+			description="Node.js core contributor & performance team member, Express.js member, OpenJS Foundation CPC member, and full stack engineer."
+		/>
+	</head>
+	<body>
+		<Header />
+
+		<div class="home">
+			<!-- Hero -->
+			<section class="hero">
+				<div class="hero-glow"></div>
+				<div class="hero-glow-2"></div>
+
+				<div class="hero-content">
+					<div class="hero-text">
+						<span class="badge">
+							<span class="badge-dot"></span>
+							Open to Consulting
+						</span>
+						<h1 class="hero-title">Hi, I'm <span class="gradient-text">Mert</span></h1>
+						<p class="hero-desc">
+							<strong>Node.js</strong> core contributor & performance team member, <strong>Express.js</strong> member, <strong>OpenJS Foundation</strong> CPC member, and passionate open source contributor.
+						</p>
+						<p class="hero-sub">
+							Full stack engineer building and optimizing production systems at scale.
+						</p>
+						<div class="hero-actions">
+							<a href="/consulting" class="btn-primary">
+								Consulting
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+							</a>
+							<a href="/blog" class="btn-secondary">Read Blog</a>
+							<a href="/about" class="btn-secondary">About Me</a>
+						</div>
+					</div>
+					<div class="hero-image">
+						<div class="image-ring"></div>
+						<img src="/github-image.png" alt="Mert Can Altin" />
+					</div>
+				</div>
+			</section>
+
+			<!-- Memberships -->
+			<section class="memberships">
+				<div class="membership-item">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+					<div>
+						<span class="membership-org">OpenJS Foundation</span>
+						<span class="membership-role">CPC Member</span>
+					</div>
+				</div>
+				<div class="membership-divider"></div>
+				<div class="membership-item">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+					<div>
+						<span class="membership-org">Node.js</span>
+						<span class="membership-role">Core Contributor</span>
+					</div>
+				</div>
+				<div class="membership-divider"></div>
+				<div class="membership-item">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+					<div>
+						<span class="membership-org">Node.js Performance</span>
+						<span class="membership-role">Team Member</span>
+					</div>
+				</div>
+				<div class="membership-divider"></div>
+				<div class="membership-item">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+					<div>
+						<span class="membership-org">Express.js</span>
+						<span class="membership-role">Member</span>
+					</div>
+				</div>
+			</section>
+
+			<!-- What I Do -->
+			<section class="section">
+				<h2 class="section-title">What I Do</h2>
+				<div class="skills-grid">
+					<div class="skill-card">
+						<div class="skill-icon">
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+						</div>
+						<h3 class="skill-title">Full Stack Engineering</h3>
+						<p class="skill-desc">Building end-to-end applications — from high-performance Node.js backends and APIs to modern frontend interfaces.</p>
+					</div>
+					<div class="skill-card">
+						<div class="skill-icon">
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+						</div>
+						<h3 class="skill-title">Open Source</h3>
+						<p class="skill-desc">Contributing to and maintaining core frameworks used by thousands of developers worldwide.</p>
+					</div>
+					<div class="skill-card">
+						<div class="skill-icon">
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+						</div>
+						<h3 class="skill-title">Performance Consulting</h3>
+						<p class="skill-desc">Helping teams identify bottlenecks, reduce cloud costs, and optimize their Node.js infrastructure.</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- Latest Posts -->
+			{posts.length > 0 && (
+				<section class="section">
+					<div class="section-header">
+						<h2 class="section-title">Latest Posts</h2>
+						<a href="/blog" class="view-all">
+							View All
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+						</a>
+					</div>
+					<div class="posts-grid">
+						{posts.map((post) => (
+							<a href={`/blog/${post.id}/`} class="post-card">
+								<img src={post.data.heroImage} alt={post.data.title} class="post-img" />
+								<div class="post-info">
+									<span class="post-tag">{post.data.tag}</span>
+									<h3 class="post-title">{post.data.title}</h3>
+									<p class="post-date"><FormattedDate date={post.data.pubDate} /></p>
+								</div>
+							</a>
+						))}
+					</div>
+				</section>
+			)}
+
+			<!-- CTA -->
+			<section class="cta">
+				<div class="cta-glow"></div>
+				<div class="cta-glow-2"></div>
+				<p class="cta-eyebrow">Need help with Node.js performance?</p>
+				<h2 class="cta-heading">Let's build something<br/><span class="gradient-text-light">great together.</span></h2>
+				<div class="cta-actions">
+					<a href="/consulting" class="btn-primary btn-light">
+						View Consulting
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+					</a>
+					<a href="https://github.com/mertcanaltin" target="_blank" rel="noopener noreferrer" class="btn-ghost">GitHub Profile</a>
+				</div>
+			</section>
+		</div>
+
+		<Footer />
+	</body>
+</html>
+
+<style is:global>
+	/* Home wrapper — override global main */
+	.home {
+		width: 1040px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		padding: 1em 1em 3em;
+	}
+
+	/* Reset globals inside .home */
+	.home h1, .home h2, .home h3 {
+		margin: 0;
+		line-height: 1.2;
+		color: rgb(var(--black));
+	}
+
+	.home p {
+		margin: 0;
+	}
+
+	.home a {
+		text-decoration: none;
+	}
+
+	/* ── Hero ── */
+	.home .hero {
+		position: relative;
+		padding: 4em 0 3em;
+		overflow: hidden;
+	}
+
+	.home .hero-glow {
+		position: absolute;
+		top: -100px;
+		left: -100px;
+		width: 600px;
+		height: 600px;
+		background: radial-gradient(circle, rgba(35, 55, 255, 0.09) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.home .hero-glow-2 {
+		position: absolute;
+		top: -50px;
+		right: -150px;
+		width: 500px;
+		height: 500px;
+		background: radial-gradient(circle, rgba(139, 92, 246, 0.07) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.home .hero-content {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		gap: 4em;
+	}
+
+	.home .hero-text {
+		flex: 1;
+	}
+
+	.home .badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0.4em 1.2em;
+		font-size: 0.7em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #10b981;
+		background: rgba(16, 185, 129, 0.08);
+		border: 1px solid rgba(16, 185, 129, 0.2);
+		border-radius: 100px;
+		margin-bottom: 1.5em;
+	}
+
+	.home .badge-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #10b981;
+		animation: home-pulse 2s ease-in-out infinite;
+	}
+
+	@keyframes home-pulse {
+		0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+		50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+	}
+
+	.home .hero-title {
+		font-size: 3.4em;
+		line-height: 1.1;
+		letter-spacing: -0.03em;
+		margin-bottom: 0.5em;
+	}
+
+	.home .gradient-text {
+		background: linear-gradient(135deg, var(--accent) 0%, #6366f1 40%, #8b5cf6 70%, #a855f7 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.home .hero-desc {
+		font-size: 1.1em;
+		line-height: 1.65;
+		color: rgb(var(--gray-dark));
+		margin-bottom: 0.5em;
+	}
+
+	.home .hero-desc strong {
+		color: rgb(var(--black));
+	}
+
+	.home .hero-sub {
+		font-size: 1em;
+		line-height: 1.6;
+		color: rgb(var(--gray));
+		margin-bottom: 2em;
+	}
+
+	.home .hero-actions {
+		display: flex;
+		gap: 0.8em;
+		flex-wrap: wrap;
+	}
+
+	.home .hero-image {
+		position: relative;
+		flex-shrink: 0;
+	}
+
+	.home .hero-image img {
+		width: 260px;
+		height: 260px;
+		object-fit: cover;
+		border-radius: 50%;
+		position: relative;
+		z-index: 1;
+		border: 3px solid white;
+		box-shadow: 0 8px 32px rgba(var(--gray), 20%);
+	}
+
+	.home .image-ring {
+		position: absolute;
+		top: -8px;
+		left: -8px;
+		right: -8px;
+		bottom: -8px;
+		border-radius: 50%;
+		background: linear-gradient(135deg, var(--accent), #6366f1, #8b5cf6, #a855f7);
+		opacity: 0.2;
+		animation: ring-rotate 8s linear infinite;
+	}
+
+	@keyframes ring-rotate {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
+	/* ── Buttons ── */
+	.home .btn-primary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45em;
+		padding: 0.75em 1.8em;
+		font-size: 0.9em;
+		font-weight: 700;
+		color: white;
+		background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+		border-radius: 12px;
+		transition: all 0.3s ease;
+		box-shadow: 0 4px 16px rgba(35, 55, 255, 0.3);
+	}
+
+	.home .btn-primary:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(35, 55, 255, 0.4);
+		color: white;
+	}
+
+	.home .btn-primary svg {
+		transition: transform 0.3s ease;
+	}
+
+	.home .btn-primary:hover svg {
+		transform: translateX(3px);
+	}
+
+	.home .btn-secondary {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.75em 1.8em;
+		font-size: 0.9em;
+		font-weight: 600;
+		color: rgb(var(--gray-dark));
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 12px;
+		transition: all 0.3s ease;
+	}
+
+	.home .btn-secondary:hover {
+		border-color: var(--accent);
+		color: var(--accent);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(var(--gray), 12%);
+	}
+
+	.home .btn-light {
+		background: white;
+		color: rgb(var(--black));
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+	}
+
+	.home .btn-light:hover {
+		color: rgb(var(--black));
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+	}
+
+	.home .btn-ghost {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.75em 1.8em;
+		font-size: 0.9em;
+		font-weight: 600;
+		color: rgba(255, 255, 255, 0.8);
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 12px;
+		transition: all 0.3s ease;
+	}
+
+	.home .btn-ghost:hover {
+		background: rgba(255, 255, 255, 0.15);
+		color: white;
+		transform: translateY(-2px);
+	}
+
+	/* ── Memberships ── */
+	.home .memberships {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 2em;
+		padding: 1.8em 2em;
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 16px;
+		margin-bottom: 1em;
+	}
+
+	.home .membership-item {
+		display: flex;
+		align-items: center;
+		gap: 0.8em;
+		color: var(--accent);
+	}
+
+	.home .membership-item div {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.home .membership-org {
+		font-size: 0.9em;
+		font-weight: 700;
+		color: rgb(var(--black));
+		line-height: 1.3;
+	}
+
+	.home .membership-role {
+		font-size: 0.75em;
+		color: rgb(var(--gray));
+		font-weight: 500;
+	}
+
+	.home .membership-divider {
+		width: 1px;
+		height: 36px;
+		background: rgb(var(--gray-light));
+	}
+
+	/* ── Sections ── */
+	.home .section {
+		margin: 4em 0;
+	}
+
+	.home .section-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 1.5em;
+	}
+
+	.home .section-title {
+		font-size: 1.8em;
+		letter-spacing: -0.02em;
+	}
+
+	.home .section-header .section-title {
+		margin-bottom: 0;
+	}
+
+	.home .view-all {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3em;
+		font-size: 0.85em;
+		font-weight: 600;
+		color: var(--accent);
+		transition: gap 0.3s ease;
+	}
+
+	.home .view-all:hover {
+		gap: 0.6em;
+	}
+
+	/* ── Skills ── */
+	.home .skills-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.2em;
+		margin-top: 1.5em;
+	}
+
+	.home .skill-card {
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 16px;
+		padding: 2em 1.5em;
+		transition: all 0.3s ease;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.home .skill-card::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 2px;
+		background: linear-gradient(90deg, var(--accent), #8b5cf6);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.4s ease;
+	}
+
+	.home .skill-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 12px 36px rgba(var(--gray), 15%);
+		border-color: rgba(35, 55, 255, 0.12);
+	}
+
+	.home .skill-card:hover::after {
+		transform: scaleX(1);
+	}
+
+	.home .skill-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 52px;
+		height: 52px;
+		border-radius: 14px;
+		background: linear-gradient(135deg, rgba(35, 55, 255, 0.07), rgba(139, 92, 246, 0.07));
+		color: var(--accent);
+		margin-bottom: 1em;
+	}
+
+	.home .skill-title {
+		font-size: 1.1em;
+		margin-bottom: 0.5em;
+	}
+
+	.home .skill-desc {
+		font-size: 0.88em;
+		color: rgb(var(--gray));
+		line-height: 1.65;
+	}
+
+	/* ── Posts ── */
+	.home .posts-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.2em;
+	}
+
+	.home .post-card {
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 16px;
+		overflow: hidden;
+		transition: all 0.3s ease;
+		display: block;
+	}
+
+	.home .post-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 12px 36px rgba(var(--gray), 15%);
+		border-color: rgba(35, 55, 255, 0.12);
+	}
+
+	.home .post-card:hover .post-title {
+		color: var(--accent);
+	}
+
+	.home .post-img {
+		width: 100%;
+		height: 160px;
+		object-fit: cover;
+		border-radius: 0;
+	}
+
+	.home .post-info {
+		padding: 1.2em 1.4em;
+	}
+
+	.home .post-tag {
+		display: inline-block;
+		padding: 0.2em 0.7em;
+		font-size: 0.65em;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--accent);
+		background: rgba(35, 55, 255, 0.06);
+		border-radius: 6px;
+		margin-bottom: 0.6em;
+	}
+
+	.home .post-title {
+		font-size: 1em;
+		line-height: 1.35;
+		margin-bottom: 0.5em;
+		transition: color 0.2s ease;
+		color: rgb(var(--black));
+	}
+
+	.home .post-date {
+		font-size: 0.78em;
+		color: rgb(var(--gray));
+	}
+
+	/* ── CTA ── */
+	.home .cta {
+		position: relative;
+		text-align: center;
+		padding: 4.5em 2em;
+		margin: 3em 0 0;
+		background: linear-gradient(135deg, #0f0f1a 0%, #151528 50%, #1a1a35 100%);
+		border-radius: 24px;
+		overflow: hidden;
+	}
+
+	.home .cta-glow {
+		position: absolute;
+		bottom: -120px;
+		left: -80px;
+		width: 400px;
+		height: 400px;
+		background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.home .cta-glow-2 {
+		position: absolute;
+		top: -80px;
+		right: -80px;
+		width: 350px;
+		height: 350px;
+		background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.home .cta-eyebrow {
+		position: relative;
+		z-index: 1;
+		font-size: 0.85em;
+		color: #a78bfa;
+		font-weight: 600;
+		margin-bottom: 0.8em;
+	}
+
+	.home .cta-heading {
+		position: relative;
+		z-index: 1;
+		color: white;
+		font-size: 2.2em;
+		line-height: 1.25;
+		margin-bottom: 1.2em;
+		letter-spacing: -0.02em;
+	}
+
+	.home .gradient-text-light {
+		background: linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #c084fc 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.home .cta-actions {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		gap: 1em;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	/* ── Responsive ── */
+	@media (max-width: 768px) {
+		.home .hero {
+			padding: 2.5em 0 2em;
+		}
+
+		.home .hero-content {
+			flex-direction: column-reverse;
+			text-align: center;
+			gap: 2em;
+		}
+
+		.home .hero-title {
+			font-size: 2.4em;
+		}
+
+		.home .hero-actions {
+			justify-content: center;
+		}
+
+		.home .hero-image img {
+			width: 180px;
+			height: 180px;
+		}
+
+		.home .memberships {
+			flex-direction: column;
+			gap: 1.2em;
+			text-align: center;
+		}
+
+		.home .membership-item {
+			flex-direction: column;
+			gap: 0.4em;
+		}
+
+		.home .membership-item div {
+			align-items: center;
+		}
+
+		.home .membership-divider {
+			width: 60px;
+			height: 1px;
+		}
+
+		.home .skills-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.home .posts-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.home .section-header {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.5em;
+		}
+
+		.home .section-title {
+			font-size: 1.5em;
+		}
+
+		.home .cta {
+			padding: 3em 1.5em;
+		}
+
+		.home .cta-heading {
+			font-size: 1.6em;
+		}
+	}
+</style>

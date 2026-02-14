@@ -7,35 +7,448 @@ import Footer from '../components/Footer.astro';
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title="About Me" description="Software engineer, Node.js & Express.js member, and open source volunteer" />
+		<BaseHead title="About — Mert Can Altin" description="Node.js core contributor & performance team member, Express.js member, OpenJS Foundation CPC member, and full stack engineer." />
 	</head>
 	<body>
 		<Header />
-		<main>
-			<h1>Who is Mert Can Altin?</h1>
-			<p>
-				Hello there! My name is Mert Can Altin, and I'm a member of the Node.js & Express.js community.
-			</p>
-			<p>
-				I am also a passionate open source volunteer.
-			</p>
-			<p>
-				I am a software engineer who builds and maintains frameworks using Node.js.
-			</p>
+		<div class="about-page">
+			<!-- Hero -->
+			<section class="about-hero">
+				<div class="about-glow"></div>
+				<div class="about-hero-content">
+					<div class="about-hero-text">
+						<span class="about-badge">About Me</span>
+						<h1 class="about-title">Mert Can <span class="about-gradient">Altin</span></h1>
+						<p class="about-intro">
+							Full stack engineer, <strong>Node.js core contributor</strong> & <strong>performance team member</strong>, and passionate open source advocate. I build, optimize, and maintain the frameworks that power production systems at scale.
+						</p>
+					</div>
+					<div class="about-image">
+						<div class="about-ring"></div>
+						<img src="/github-image.png" alt="Mert Can Altin" />
+					</div>
+				</div>
+			</section>
 
-			<h2>Memberships</h2>
-			<ol>
-				<li><a href="https://github.com/openjs-foundation">OpenJS Foundation</a> CPC member</li>
-				<li><a href="https://github.com/nodejs/node">Node.js</a> member</li>
-				<li><a href="https://github.com/expressjs/express">Express.js</a> member</li>
-			</ol>
+			<!-- Memberships -->
+			<section class="about-section">
+				<h2 class="about-section-title">Memberships & Roles</h2>
+				<div class="roles-grid">
+					<div class="role-card">
+						<div class="role-icon">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+						</div>
+						<div class="role-info">
+							<a href="https://github.com/openjs-foundation" target="_blank" rel="noopener noreferrer" class="role-org">OpenJS Foundation</a>
+							<span class="role-title">CPC Member</span>
+						</div>
+					</div>
+					<div class="role-card">
+						<div class="role-icon">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+						</div>
+						<div class="role-info">
+							<a href="https://github.com/nodejs/node" target="_blank" rel="noopener noreferrer" class="role-org">Node.js</a>
+							<span class="role-title">Core Contributor</span>
+						</div>
+					</div>
+					<div class="role-card">
+						<div class="role-icon">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+						</div>
+						<div class="role-info">
+							<a href="https://github.com/nodejs/performance" target="_blank" rel="noopener noreferrer" class="role-org">Node.js Performance</a>
+							<span class="role-title">Team Member</span>
+						</div>
+					</div>
+					<div class="role-card">
+						<div class="role-icon">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+						</div>
+						<div class="role-info">
+							<a href="https://github.com/expressjs/express" target="_blank" rel="noopener noreferrer" class="role-org">Express.js</a>
+							<span class="role-title">Member</span>
+						</div>
+					</div>
+				</div>
+			</section>
 
-			<h2>Links</h2>
-			<ul>
-				<li><a href="https://github.com/mertcanaltin">GitHub profile</a></li>
-				<li><a href="https://x.com/mecaltin">X profile</a></li>
-			</ul>
-		</main>
+			<!-- Connect -->
+			<section class="about-section">
+				<h2 class="about-section-title">Connect</h2>
+				<div class="links-grid">
+					<a href="https://github.com/mertcanaltin" target="_blank" rel="noopener noreferrer" class="link-card">
+						<svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+						<div>
+							<span class="link-name">GitHub</span>
+							<span class="link-handle">@mertcanaltin</span>
+						</div>
+						<svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+					</a>
+					<a href="https://x.com/mecaltin" target="_blank" rel="noopener noreferrer" class="link-card">
+						<svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/></svg>
+						<div>
+							<span class="link-name">X (Twitter)</span>
+							<span class="link-handle">@mecaltin</span>
+						</div>
+						<svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+					</a>
+					<a href="https://www.linkedin.com/in/mikifriki/" target="_blank" rel="noopener noreferrer" class="link-card">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+						<div>
+							<span class="link-name">LinkedIn</span>
+							<span class="link-handle">Mert Can Altin</span>
+						</div>
+						<svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+					</a>
+				</div>
+			</section>
+
+			<!-- CTA -->
+			<section class="about-cta">
+				<div class="about-cta-glow"></div>
+				<p class="about-cta-eyebrow">Interested in working together?</p>
+				<h2 class="about-cta-heading">Let's connect and build<br/><span class="about-gradient-light">something meaningful.</span></h2>
+				<div class="about-cta-actions">
+					<a href="/consulting" class="about-btn-primary">
+						View Consulting
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+					</a>
+					<a href="/blog" class="about-btn-ghost">Read My Blog</a>
+				</div>
+			</section>
+		</div>
 		<Footer />
 	</body>
 </html>
+
+<style is:global>
+	.about-page {
+		width: 960px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		padding: 1em 1em 3em;
+	}
+
+	.about-page h1, .about-page h2, .about-page h3 { margin: 0; line-height: 1.2; color: rgb(var(--black)); }
+	.about-page p { margin: 0; }
+	.about-page a { text-decoration: none; }
+
+	/* Hero */
+	.about-hero {
+		position: relative;
+		padding: 4em 0 3em;
+		overflow: hidden;
+	}
+
+	.about-glow {
+		position: absolute;
+		top: -100px;
+		right: -100px;
+		width: 500px;
+		height: 500px;
+		background: radial-gradient(circle, rgba(35, 55, 255, 0.08) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.about-hero-content {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		gap: 3em;
+	}
+
+	.about-hero-text { flex: 1; }
+
+	.about-badge {
+		display: inline-block;
+		padding: 0.35em 1em;
+		font-size: 0.7em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--accent);
+		background: rgba(35, 55, 255, 0.06);
+		border: 1px solid rgba(35, 55, 255, 0.15);
+		border-radius: 100px;
+		margin-bottom: 1.5em;
+	}
+
+	.about-title {
+		font-size: 3em;
+		letter-spacing: -0.03em;
+		line-height: 1.1;
+		margin-bottom: 0.6em;
+	}
+
+	.about-gradient {
+		background: linear-gradient(135deg, var(--accent) 0%, #6366f1 40%, #8b5cf6 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.about-intro {
+		font-size: 1.05em;
+		line-height: 1.7;
+		color: rgb(var(--gray));
+	}
+
+	.about-intro strong { color: rgb(var(--gray-dark)); }
+
+	.about-image {
+		position: relative;
+		flex-shrink: 0;
+	}
+
+	.about-image img {
+		width: 220px;
+		height: 220px;
+		object-fit: cover;
+		border-radius: 50%;
+		position: relative;
+		z-index: 1;
+		border: 3px solid white;
+		box-shadow: 0 8px 32px rgba(var(--gray), 20%);
+	}
+
+	.about-ring {
+		position: absolute;
+		top: -6px; left: -6px; right: -6px; bottom: -6px;
+		border-radius: 50%;
+		background: linear-gradient(135deg, var(--accent), #8b5cf6);
+		opacity: 0.15;
+	}
+
+	/* Sections */
+	.about-section { margin: 3em 0; }
+
+	.about-section-title {
+		font-size: 1.6em;
+		letter-spacing: -0.02em;
+		margin-bottom: 1.2em;
+	}
+
+	/* Roles */
+	.roles-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1em;
+	}
+
+	.role-card {
+		display: flex;
+		align-items: center;
+		gap: 1em;
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 14px;
+		padding: 1.3em 1.5em;
+		transition: all 0.3s ease;
+	}
+
+	.role-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(var(--gray), 12%);
+		border-color: rgba(35, 55, 255, 0.12);
+	}
+
+	.role-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		background: linear-gradient(135deg, rgba(35, 55, 255, 0.07), rgba(139, 92, 246, 0.07));
+		color: var(--accent);
+		flex-shrink: 0;
+	}
+
+	.role-info { display: flex; flex-direction: column; }
+
+	.role-org {
+		font-size: 0.95em;
+		font-weight: 700;
+		color: rgb(var(--black));
+		transition: color 0.2s;
+	}
+
+	.role-org:hover { color: var(--accent); }
+
+	.role-title {
+		font-size: 0.78em;
+		color: rgb(var(--gray));
+		font-weight: 500;
+	}
+
+	/* Links */
+	.links-grid {
+		display: flex;
+		flex-direction: column;
+		gap: 0.8em;
+	}
+
+	.link-card {
+		display: flex;
+		align-items: center;
+		gap: 1em;
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 14px;
+		padding: 1.2em 1.5em;
+		transition: all 0.3s ease;
+		color: rgb(var(--gray-dark));
+	}
+
+	.link-card:hover {
+		transform: translateX(4px);
+		box-shadow: 0 4px 16px rgba(var(--gray), 10%);
+		border-color: rgba(35, 55, 255, 0.12);
+		color: var(--accent);
+	}
+
+	.link-card > svg:first-child {
+		flex-shrink: 0;
+		width: 24px;
+		height: 24px;
+	}
+
+	.link-card div { flex: 1; display: flex; flex-direction: column; }
+
+	.link-name {
+		font-size: 0.95em;
+		font-weight: 700;
+		color: rgb(var(--black));
+	}
+
+	.link-handle {
+		font-size: 0.8em;
+		color: rgb(var(--gray));
+	}
+
+	.link-arrow {
+		flex-shrink: 0;
+		color: rgb(var(--gray-light));
+		transition: all 0.3s ease;
+	}
+
+	.link-card:hover .link-arrow {
+		color: var(--accent);
+		transform: translate(2px, -2px);
+	}
+
+	/* CTA */
+	.about-cta {
+		position: relative;
+		text-align: center;
+		padding: 4em 2em;
+		margin: 3em 0 0;
+		background: linear-gradient(135deg, #0f0f1a 0%, #151528 50%, #1a1a35 100%);
+		border-radius: 24px;
+		overflow: hidden;
+	}
+
+	.about-cta-glow {
+		position: absolute;
+		top: -80px;
+		right: -80px;
+		width: 400px;
+		height: 400px;
+		background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.about-cta-eyebrow {
+		position: relative; z-index: 1;
+		font-size: 0.85em;
+		color: #a78bfa;
+		font-weight: 600;
+		margin-bottom: 0.8em;
+	}
+
+	.about-cta-heading {
+		position: relative; z-index: 1;
+		color: white;
+		font-size: 2em;
+		line-height: 1.25;
+		margin-bottom: 1.2em;
+		letter-spacing: -0.02em;
+	}
+
+	.about-gradient-light {
+		background: linear-gradient(135deg, #818cf8, #a78bfa, #c084fc);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.about-cta-actions {
+		position: relative; z-index: 1;
+		display: flex;
+		gap: 1em;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	.about-btn-primary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0.8em 2em;
+		font-size: 0.92em;
+		font-weight: 700;
+		color: rgb(var(--black));
+		background: white;
+		border-radius: 12px;
+		transition: all 0.3s ease;
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+	}
+
+	.about-btn-primary:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+		color: rgb(var(--black));
+	}
+
+	.about-btn-primary svg { transition: transform 0.3s ease; }
+	.about-btn-primary:hover svg { transform: translateX(3px); }
+
+	.about-btn-ghost {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.8em 2em;
+		font-size: 0.92em;
+		font-weight: 600;
+		color: rgba(255, 255, 255, 0.8);
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 12px;
+		transition: all 0.3s ease;
+	}
+
+	.about-btn-ghost:hover {
+		background: rgba(255, 255, 255, 0.15);
+		color: white;
+		transform: translateY(-2px);
+	}
+
+	/* Responsive */
+	@media (max-width: 768px) {
+		.about-hero-content {
+			flex-direction: column-reverse;
+			text-align: center;
+			gap: 2em;
+		}
+
+		.about-title { font-size: 2.2em; }
+
+		.about-image img { width: 160px; height: 160px; }
+
+		.roles-grid { grid-template-columns: 1fr; }
+
+		.about-cta { padding: 3em 1.5em; }
+		.about-cta-heading { font-size: 1.5em; }
+	}
+</style>

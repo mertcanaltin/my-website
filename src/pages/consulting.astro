@@ -1,0 +1,724 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="Consulting - Mert Can Altin" description="Slow Node.js, high cloud bills — we fix both. Performance audits, architecture reviews, and cost optimization for engineering teams." />
+	</head>
+	<body>
+		<Header />
+		<div class="consulting-page">
+			<!-- Hero -->
+			<section class="hero">
+				<div class="hero-glow"></div>
+				<div class="hero-glow-2"></div>
+				<span class="badge">
+					<span class="badge-dot"></span>
+					Available for Engagements
+				</span>
+				<h1 class="hero-title">Slow Node.js.<br/>High cloud bills.<br/><span class="gradient-text">We fix both.</span></h1>
+				<p class="hero-desc">
+					I help engineering teams identify performance bottlenecks, eliminate infrastructure waste, and build systems that scale efficiently.
+				</p>
+				<div class="hero-actions">
+					<a href="https://flowflare-website.altinmert.workers.dev/#contact" target="_blank" rel="noopener noreferrer" class="btn-primary">
+						Discuss Your Performance
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+					</a>
+					<a href="https://flowflare-website.altinmert.workers.dev/#contact" target="_blank" rel="noopener noreferrer" class="btn-secondary">Schedule a Call</a>
+				</div>
+			</section>
+
+			<!-- Stats Bar -->
+			<section class="stats-bar">
+				<div class="stat">
+					<span class="stat-value">~60%</span>
+					<span class="stat-label">Server Cost Reduction</span>
+				</div>
+				<div class="stat-divider"></div>
+				<div class="stat">
+					<span class="stat-value">4x</span>
+					<span class="stat-label">Throughput Improvement</span>
+				</div>
+				<div class="stat-divider"></div>
+				<div class="stat">
+					<span class="stat-value">F500</span>
+					<span class="stat-label">Enterprise Clients</span>
+				</div>
+			</section>
+
+			<!-- Services -->
+			<section class="section">
+				<h2 class="section-title">How I Help</h2>
+				<p class="section-desc">Every millisecond of latency costs you users, revenue, and engineering hours. I identify what's slowing you down and eliminate it.</p>
+
+				<div class="services-grid">
+					<div class="service-card">
+						<div class="service-icon">
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+						</div>
+						<h3 class="card-title">Performance Audit</h3>
+						<p class="card-desc">Comprehensive application profiling to identify what's actually costing you money. Bottleneck analysis, resource waste detection, and a clear report with ROI-focused recommendations.</p>
+					</div>
+
+					<div class="service-card">
+						<div class="service-icon">
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+						</div>
+						<h3 class="card-title">Node.js Optimization</h3>
+						<p class="card-desc">Memory leaks, slow API responses, event loop blocking — the problems that silently drain your infrastructure budget. I identify and eliminate them.</p>
+					</div>
+
+					<div class="service-card">
+						<div class="service-icon">
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+						</div>
+						<h3 class="card-title">Architecture Review</h3>
+						<p class="card-desc">Wrong architectural decisions compound over time. I review your system design, identify costly patterns, and provide a migration path that saves months of rework.</p>
+					</div>
+
+					<div class="service-card">
+						<div class="service-icon">
+							<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+						</div>
+						<h3 class="card-title">Cost Optimization</h3>
+						<p class="card-desc">Over-provisioned servers, unnecessary microservices, redundant infrastructure. I help you reduce cloud costs by optimizing what you already have.</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- Benchmark -->
+			<section class="section">
+				<h2 class="section-title">Real Results</h2>
+				<p class="section-desc">Actual before/after metrics from client engagements.</p>
+
+				<div class="benchmark">
+					<div class="benchmark-header">
+						<span class="benchmark-file">benchmark.sh</span>
+						<div class="benchmark-dots">
+							<span class="dot dot-red"></span>
+							<span class="dot dot-yellow"></span>
+							<span class="dot dot-green"></span>
+						</div>
+					</div>
+					<div class="benchmark-body">
+						<pre class="benchmark-pre"><code class="benchmark-code"><span class="code-comment"># Before: wrong decisions = budget waste</span>
+<span class="code-key">Servers:</span>  8x c5.xlarge
+<span class="code-key">Monthly:</span> <span class="code-red">$12,400</span>
+<span class="code-key">Latency:</span> <span class="code-red">89ms</span>
+<span class="code-key">Throughput:</span> 1,247 req/s
+
+<span class="code-comment"># After: optimized Node.js</span>
+<span class="code-key">Servers:</span>  2x c5.xlarge
+<span class="code-key">Monthly:</span> <span class="code-green">$3,100</span>
+<span class="code-key">Latency:</span> <span class="code-green">12ms</span>
+<span class="code-key">Throughput:</span> 4,981 req/s
+
+<span class="code-accent"># = 75% less infrastructure cost</span></code></pre>
+					</div>
+				</div>
+			</section>
+
+			<!-- Common Mistakes -->
+			<section class="section">
+				<h2 class="section-title">Costly Mistakes I See Every Week</h2>
+				<p class="section-desc">These are the decisions that silently drain your budget.</p>
+
+				<div class="mistakes-grid">
+					<div class="mistake-card">
+						<span class="mistake-tag tag-red">$$</span>
+						<h3 class="card-title">Scaling Before Profiling</h3>
+						<p class="card-desc">Adding more servers won't resolve a memory leak or a blocked event loop. Most performance issues are code-level — and cheaper to fix than additional infrastructure.</p>
+					</div>
+					<div class="mistake-card">
+						<span class="mistake-tag tag-orange">latency</span>
+						<h3 class="card-title">Blocking the Event Loop</h3>
+						<p class="card-desc">A single synchronous operation in the wrong place can eliminate throughput for every user. One JSON.parse() on a large payload can freeze your entire application.</p>
+					</div>
+					<div class="mistake-card">
+						<span class="mistake-tag tag-red">crash</span>
+						<h3 class="card-title">Buffering Everything in Memory</h3>
+						<p class="card-desc">Loading entire files or API responses into memory is the fastest path to OOM errors and server crashes. Stream processing keeps memory stable under any load.</p>
+					</div>
+					<div class="mistake-card">
+						<span class="mistake-tag tag-purple">debt</span>
+						<h3 class="card-title">Premature Microservices</h3>
+						<p class="card-desc">Decomposing a monolith prematurely introduces network latency, deployment complexity, and debugging overhead. Every additional service is a cost multiplier.</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- CTA -->
+			<section class="cta">
+				<div class="cta-glow"></div>
+				<div class="cta-glow-2"></div>
+				<p class="cta-eyebrow">Every day without optimization costs you thousands.</p>
+				<h2 class="cta-title">Let's identify what's consuming<br/>your budget and resolve it.</h2>
+				<div class="cta-actions">
+					<a href="https://flowflare-website.altinmert.workers.dev/#contact" target="_blank" rel="noopener noreferrer" class="btn-primary btn-light">
+						Get In Touch
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+					</a>
+					<a href="https://flowflare-website.altinmert.workers.dev/#contact" target="_blank" rel="noopener noreferrer" class="btn-ghost">Schedule a Call</a>
+				</div>
+			</section>
+		</div>
+		<Footer />
+	</body>
+</html>
+
+<style is:global>
+	.consulting-page {
+		width: 1040px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		padding: 1em 1em 3em;
+	}
+
+	/* Reset global overrides inside consulting page */
+	.consulting-page h1,
+	.consulting-page h2,
+	.consulting-page h3 {
+		margin: 0;
+		line-height: 1.2;
+		color: rgb(var(--black));
+	}
+
+	.consulting-page p {
+		margin: 0;
+	}
+
+	.consulting-page a {
+		text-decoration: none;
+	}
+
+	.consulting-page pre {
+		padding: 0;
+		border-radius: 0;
+	}
+
+	.consulting-page code {
+		padding: 0;
+		background: none;
+		border-radius: 0;
+	}
+
+	/* Hero */
+	.consulting-page .hero {
+		position: relative;
+		text-align: center;
+		padding: 5em 1em 3em;
+		overflow: hidden;
+	}
+
+	.consulting-page .hero-glow {
+		position: absolute;
+		top: -120px;
+		left: 50%;
+		transform: translateX(-60%);
+		width: 600px;
+		height: 600px;
+		background: radial-gradient(circle, rgba(35, 55, 255, 0.1) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.consulting-page .hero-glow-2 {
+		position: absolute;
+		top: -80px;
+		right: -200px;
+		width: 500px;
+		height: 500px;
+		background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.consulting-page .badge {
+		position: relative;
+		z-index: 1;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0.45em 1.3em;
+		font-size: 0.7em;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #10b981;
+		background: rgba(16, 185, 129, 0.08);
+		border: 1px solid rgba(16, 185, 129, 0.2);
+		border-radius: 100px;
+		margin-bottom: 2em;
+	}
+
+	.consulting-page .badge-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #10b981;
+		animation: pulse-dot 2s ease-in-out infinite;
+	}
+
+	@keyframes pulse-dot {
+		0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+		50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+	}
+
+	.consulting-page .hero-title {
+		position: relative;
+		z-index: 1;
+		font-size: 3.2em;
+		line-height: 1.15;
+		margin-bottom: 0.6em;
+		letter-spacing: -0.03em;
+	}
+
+	.consulting-page .gradient-text {
+		background: linear-gradient(135deg, var(--accent) 0%, #6366f1 40%, #8b5cf6 70%, #a855f7 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.consulting-page .hero-desc {
+		position: relative;
+		z-index: 1;
+		font-size: 1.1em;
+		color: rgb(var(--gray));
+		max-width: 580px;
+		margin: 0 auto 2em;
+		line-height: 1.65;
+	}
+
+	.consulting-page .hero-actions {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		gap: 1em;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	/* Buttons */
+	.consulting-page .btn-primary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		padding: 0.85em 2em;
+		font-size: 0.95em;
+		font-weight: 700;
+		color: white;
+		background: linear-gradient(135deg, var(--accent) 0%, #6366f1 100%);
+		border: none;
+		border-radius: 12px;
+		text-decoration: none;
+		transition: all 0.3s ease;
+		box-shadow: 0 4px 16px rgba(35, 55, 255, 0.3);
+	}
+
+	.consulting-page .btn-primary:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 28px rgba(35, 55, 255, 0.4);
+		color: white;
+	}
+
+	.consulting-page .btn-primary svg {
+		transition: transform 0.3s ease;
+	}
+
+	.consulting-page .btn-primary:hover svg {
+		transform: translateX(3px);
+	}
+
+	.consulting-page .btn-secondary {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.85em 2em;
+		font-size: 0.95em;
+		font-weight: 600;
+		color: rgb(var(--gray-dark));
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 12px;
+		text-decoration: none;
+		transition: all 0.3s ease;
+	}
+
+	.consulting-page .btn-secondary:hover {
+		border-color: var(--accent);
+		color: var(--accent);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(var(--gray), 15%);
+	}
+
+	.consulting-page .btn-light {
+		background: white;
+		color: rgb(var(--black));
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+	}
+
+	.consulting-page .btn-light:hover {
+		color: rgb(var(--black));
+		box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+	}
+
+	.consulting-page .btn-ghost {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.85em 2em;
+		font-size: 0.95em;
+		font-weight: 600;
+		color: rgba(255, 255, 255, 0.8);
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 12px;
+		text-decoration: none;
+		transition: all 0.3s ease;
+	}
+
+	.consulting-page .btn-ghost:hover {
+		background: rgba(255, 255, 255, 0.15);
+		color: white;
+		transform: translateY(-2px);
+	}
+
+	/* Stats */
+	.consulting-page .stats-bar {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 2.5em;
+		padding: 2em;
+		margin: 0 0 2em;
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 16px;
+	}
+
+	.consulting-page .stat {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.3em;
+	}
+
+	.consulting-page .stat-value {
+		font-size: 1.8em;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		background: linear-gradient(135deg, var(--accent), #6366f1);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.consulting-page .stat-label {
+		font-size: 0.75em;
+		font-weight: 600;
+		color: rgb(var(--gray));
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.consulting-page .stat-divider {
+		width: 1px;
+		height: 40px;
+		background: rgb(var(--gray-light));
+	}
+
+	/* Sections */
+	.consulting-page .section {
+		margin: 4em 0;
+	}
+
+	.consulting-page .section-title {
+		text-align: center;
+		font-size: 2em;
+		letter-spacing: -0.02em;
+		margin-bottom: 0.3em;
+	}
+
+	.consulting-page .section-desc {
+		text-align: center;
+		color: rgb(var(--gray));
+		max-width: 560px;
+		margin: 0 auto 2.5em;
+		font-size: 1em;
+		line-height: 1.6;
+	}
+
+	/* Services */
+	.consulting-page .services-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.2em;
+	}
+
+	.consulting-page .service-card {
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 16px;
+		padding: 2em;
+		transition: all 0.3s ease;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.consulting-page .service-card::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 2px;
+		background: linear-gradient(90deg, var(--accent), #8b5cf6);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.4s ease;
+	}
+
+	.consulting-page .service-card:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 12px 36px rgba(var(--gray), 15%);
+		border-color: rgba(35, 55, 255, 0.12);
+	}
+
+	.consulting-page .service-card:hover::after {
+		transform: scaleX(1);
+	}
+
+	.consulting-page .service-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 52px;
+		height: 52px;
+		border-radius: 14px;
+		background: linear-gradient(135deg, rgba(35, 55, 255, 0.07), rgba(139, 92, 246, 0.07));
+		color: var(--accent);
+		margin-bottom: 1em;
+	}
+
+	.consulting-page .card-title {
+		font-size: 1.15em;
+		margin-bottom: 0.5em;
+		letter-spacing: -0.01em;
+	}
+
+	.consulting-page .card-desc {
+		font-size: 0.88em;
+		color: rgb(var(--gray));
+		line-height: 1.65;
+		margin: 0;
+	}
+
+	/* Benchmark */
+	.consulting-page .benchmark {
+		max-width: 560px;
+		margin: 0 auto;
+		border-radius: 16px;
+		overflow: hidden;
+		box-shadow: 0 8px 32px rgba(var(--black), 15%);
+	}
+
+	.consulting-page .benchmark-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.8em 1.2em;
+		background: #1e1e2e;
+	}
+
+	.consulting-page .benchmark-file {
+		font-size: 0.75em;
+		font-weight: 600;
+		color: rgba(255, 255, 255, 0.5);
+		font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+	}
+
+	.consulting-page .benchmark-dots {
+		display: flex;
+		gap: 6px;
+	}
+
+	.consulting-page .dot {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+	}
+
+	.consulting-page .dot-red { background: #ff5f57; }
+	.consulting-page .dot-yellow { background: #febc2e; }
+	.consulting-page .dot-green { background: #28c840; }
+
+	.consulting-page .benchmark-body {
+		background: #11111b;
+		padding: 1.5em;
+	}
+
+	.consulting-page .benchmark-pre {
+		margin: 0;
+		padding: 0;
+		background: none;
+		border-radius: 0;
+	}
+
+	.consulting-page .benchmark-code {
+		font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+		font-size: 0.82em;
+		line-height: 1.8;
+		color: rgba(255, 255, 255, 0.75);
+		background: none;
+		padding: 0;
+		border-radius: 0;
+	}
+
+	.consulting-page .code-comment { color: rgba(255, 255, 255, 0.3); }
+	.consulting-page .code-key { color: #89b4fa; }
+	.consulting-page .code-red { color: #f38ba8; }
+	.consulting-page .code-green { color: #a6e3a1; }
+	.consulting-page .code-accent { color: #cba6f7; font-weight: 600; }
+
+	/* Mistakes */
+	.consulting-page .mistakes-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.2em;
+	}
+
+	.consulting-page .mistake-card {
+		background: white;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 16px;
+		padding: 1.8em;
+		transition: all 0.3s ease;
+	}
+
+	.consulting-page .mistake-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(var(--gray), 12%);
+	}
+
+	.consulting-page .mistake-tag {
+		display: inline-block;
+		padding: 0.25em 0.8em;
+		font-size: 0.7em;
+		font-weight: 700;
+		border-radius: 6px;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		margin-bottom: 0.8em;
+	}
+
+	.consulting-page .tag-red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+	.consulting-page .tag-orange { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+	.consulting-page .tag-purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+	/* CTA */
+	.consulting-page .cta {
+		position: relative;
+		text-align: center;
+		padding: 4.5em 2em;
+		margin: 3em 0 0;
+		background: linear-gradient(135deg, #0f0f1a 0%, #151528 50%, #1a1a35 100%);
+		border-radius: 24px;
+		overflow: hidden;
+	}
+
+	.consulting-page .cta-glow {
+		position: absolute;
+		bottom: -120px;
+		left: -80px;
+		width: 400px;
+		height: 400px;
+		background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.consulting-page .cta-glow-2 {
+		position: absolute;
+		top: -80px;
+		right: -80px;
+		width: 350px;
+		height: 350px;
+		background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+		pointer-events: none;
+	}
+
+	.consulting-page .cta-eyebrow {
+		position: relative;
+		z-index: 1;
+		font-size: 0.85em;
+		color: #a78bfa;
+		font-weight: 600;
+		margin-bottom: 0.8em;
+	}
+
+	.consulting-page .cta-title {
+		position: relative;
+		z-index: 1;
+		color: white;
+		font-size: 2em;
+		line-height: 1.25;
+		margin-bottom: 1.2em;
+		letter-spacing: -0.02em;
+	}
+
+	.consulting-page .cta-actions {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		gap: 1em;
+		justify-content: center;
+		flex-wrap: wrap;
+	}
+
+	/* Responsive */
+	@media (max-width: 768px) {
+		.consulting-page .hero {
+			padding: 3em 0.5em 2em;
+		}
+
+		.consulting-page .hero-title {
+			font-size: 2.2em;
+		}
+
+		.consulting-page .hero-desc {
+			font-size: 1em;
+		}
+
+		.consulting-page .stats-bar {
+			flex-direction: column;
+			gap: 1.5em;
+		}
+
+		.consulting-page .stat-divider {
+			width: 60px;
+			height: 1px;
+		}
+
+		.consulting-page .services-grid,
+		.consulting-page .mistakes-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.consulting-page .section-title {
+			font-size: 1.6em;
+		}
+
+		.consulting-page .cta {
+			padding: 3em 1.5em;
+		}
+
+		.consulting-page .cta-title {
+			font-size: 1.5em;
+		}
+
+		.consulting-page .benchmark-code {
+			font-size: 0.72em;
+		}
+	}
+</style>

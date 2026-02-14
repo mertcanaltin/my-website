@@ -13,73 +13,241 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 <html lang="en">
 	<head>
 		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
 	</head>
 
 	<body>
 		<Header />
-		<main>
+		<div class="blogpost-page">
 			<article>
-				<div class="hero-image">
-					{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
+				{heroImage && (
+					<div class="blogpost-hero">
+						<img src={heroImage} alt={title} class="blogpost-hero-img" />
+						<div class="blogpost-hero-overlay"></div>
 					</div>
-					<slot />
+				)}
+				<div class="blogpost-content">
+					<div class="blogpost-header">
+						<a href="/blog" class="blogpost-back">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+							Back to Blog
+						</a>
+						<div class="blogpost-meta">
+							<FormattedDate date={pubDate} />
+							{updatedDate && (
+								<span class="blogpost-updated">
+									(Updated: <FormattedDate date={updatedDate} />)
+								</span>
+							)}
+						</div>
+						<h1 class="blogpost-title">{title}</h1>
+						<p class="blogpost-description">{description}</p>
+						<hr class="blogpost-divider" />
+					</div>
+					<div class="blogpost-body prose">
+						<slot />
+					</div>
 				</div>
 			</article>
-		</main>
+		</div>
 		<Footer />
 	</body>
 </html>
+
+<style is:global>
+	.blogpost-page {
+		width: 100%;
+		max-width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+
+	/* Hero image */
+	.blogpost-hero {
+		position: relative;
+		width: 100%;
+		max-height: 420px;
+		overflow: hidden;
+	}
+
+	.blogpost-hero-img {
+		width: 100%;
+		height: 420px;
+		object-fit: cover;
+		display: block;
+		border-radius: 0;
+	}
+
+	.blogpost-hero-overlay {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 120px;
+		background: linear-gradient(0deg, rgba(var(--gray-light), 0.8) 0%, transparent 100%);
+		pointer-events: none;
+	}
+
+	/* Content */
+	.blogpost-content {
+		width: 720px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		padding: 2em 1em 3em;
+	}
+
+	/* Header */
+	.blogpost-header {
+		margin-bottom: 2em;
+		text-align: center;
+	}
+
+	.blogpost-back {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		font-size: 0.82em;
+		font-weight: 600;
+		color: rgb(var(--gray));
+		text-decoration: none;
+		margin-bottom: 2em;
+		transition: all 0.2s ease;
+	}
+
+	.blogpost-back:hover {
+		color: var(--accent);
+		gap: 0.6em;
+	}
+
+	.blogpost-meta {
+		font-size: 0.85em;
+		color: rgb(var(--gray));
+		margin-bottom: 0.8em;
+	}
+
+	.blogpost-updated {
+		font-style: italic;
+		margin-left: 0.3em;
+		color: rgb(var(--gray));
+	}
+
+	.blogpost-title {
+		font-size: 2.4em;
+		letter-spacing: -0.03em;
+		line-height: 1.15;
+		margin: 0 0 0.5em;
+		color: rgb(var(--black));
+	}
+
+	.blogpost-description {
+		font-size: 1.05em;
+		color: rgb(var(--gray));
+		line-height: 1.6;
+		max-width: 600px;
+		margin: 0 auto 1.5em;
+	}
+
+	.blogpost-divider {
+		border: none;
+		height: 2px;
+		background: linear-gradient(90deg, transparent, rgb(var(--gray-light)), transparent);
+		margin: 0;
+	}
+
+	/* Body content */
+	.blogpost-body {
+		color: rgb(var(--gray-dark));
+		line-height: 1.8;
+		font-size: 1em;
+	}
+
+	.blogpost-body h2 {
+		font-size: 1.6em;
+		margin: 2em 0 0.6em;
+		letter-spacing: -0.02em;
+		padding-bottom: 0.3em;
+		border-bottom: 1px solid rgb(var(--gray-light));
+	}
+
+	.blogpost-body h3 {
+		font-size: 1.3em;
+		margin: 1.5em 0 0.5em;
+	}
+
+	.blogpost-body p {
+		margin-bottom: 1.5em;
+	}
+
+	.blogpost-body a {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		text-decoration-thickness: 1px;
+	}
+
+	.blogpost-body a:hover {
+		text-decoration-thickness: 2px;
+	}
+
+	.blogpost-body ul, .blogpost-body ol {
+		margin-bottom: 1.5em;
+		padding-left: 1.5em;
+	}
+
+	.blogpost-body li {
+		margin-bottom: 0.4em;
+	}
+
+	.blogpost-body code {
+		padding: 0.15em 0.4em;
+		font-size: 0.88em;
+		background: rgb(var(--gray-light));
+		border-radius: 4px;
+		font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+	}
+
+	.blogpost-body pre {
+		padding: 1.5em;
+		border-radius: 12px;
+		background: #1e1e2e;
+		overflow-x: auto;
+		margin-bottom: 1.5em;
+		box-shadow: 0 4px 16px rgba(var(--black), 10%);
+	}
+
+	.blogpost-body pre code {
+		all: unset;
+		font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+		font-size: 0.85em;
+		line-height: 1.7;
+		color: rgba(255, 255, 255, 0.85);
+	}
+
+	.blogpost-body blockquote {
+		border-left: 3px solid var(--accent);
+		padding: 0.8em 0 0.8em 1.5em;
+		margin: 1.5em 0;
+		background: rgba(35, 55, 255, 0.03);
+		border-radius: 0 8px 8px 0;
+		font-size: 1em;
+	}
+
+	.blogpost-body img {
+		border-radius: 12px;
+		box-shadow: 0 4px 16px rgba(var(--gray), 15%);
+		margin: 1em 0;
+	}
+
+	.blogpost-body hr {
+		border: none;
+		height: 1px;
+		background: rgb(var(--gray-light));
+		margin: 2em 0;
+	}
+
+	/* Responsive */
+	@media (max-width: 768px) {
+		.blogpost-hero-img { height: 260px; }
+		.blogpost-title { font-size: 1.8em; }
+		.blogpost-content { padding: 1.5em 1em 2em; }
+	}
+</style>
