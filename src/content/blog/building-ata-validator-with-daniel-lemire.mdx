@@ -1,0 +1,113 @@
+---
+title: 'Building ata-validator with Daniel Lemire'
+description: >-
+  How we built a JSON Schema validator that is 2,083x faster at compilation and 4.9x faster than typebox on validation, using simdjson, RE2, and profiling-driven optimization.
+type: Blog
+pubDate: 'Mar 28 2026'
+tag: coding
+status: published
+heroImage: "/blog-placeholder-2.jpg"
+---
+
+## How it started
+
+I was building a JSON Schema validator as a side project. The idea was simple: what if we used simdjson for parsing and RE2 for regex, instead of the standard JavaScript approach?
+
+I shared the early results with Daniel Lemire, the creator of simdjson. He liked the concept and started contributing. His first PR optimized the bitmask operations in the C++ layer. Small change, big impact.
+
+Then Matteo Collina from Fastify looked at it and said something that changed the direction of the project: "Doesn't sound really interesting unless you care for really fast startups."
+
+He was right. Our validation speed was good but not revolutionary. The real opportunity was cold start.
+
+## The cold start problem
+
+ajv has been the standard JSON Schema validator for 12 years. Every Fastify, Express, and OpenAPI tool depends on it. But ajv has a structural limitation: when you call `compile(schema)`, it compiles everything immediately. In a Fastify app with 100 routes, all 100 schemas compile at startup, even if only 3 will receive requests that day.
+
+Manuel Spigolon wrote a [blog post](https://backend.cafe/how-to-unlock-the-fastest-fastify-server-startup) about this problem. His solution was a build/read pattern: pre-compile schemas to disk, load them at startup. It works, but requires extra tooling and configuration.
+
+We took a different approach.
+
+## Lazy compilation
+
+In ata-validator, the constructor does nothing. It stores the schema and sets up stub functions. When the first `validate()` call comes in, only that schema compiles. The rest stay dormant until needed.
+
+```javascript
+const v = new Validator(schema); // ~0.5 microseconds, no compilation
+v.validate(data);                // compiles here, on first use
+v.validate(data);                // already compiled, zero overhead
+```
+
+We also added a schema cache. If the same schema string appears again (common in test suites and microservices), the compiled function is reused. No `new Function()` overhead.
+
+The result: 761x faster first validation than ajv, measured with mitata process isolation.
+
+## Profiling-driven optimization
+
+Daniel taught me something valuable: profile first, optimize second. Don't guess where the slowness is. Measure each part, find the bottleneck, fix it, measure again.
+
+We applied this systematically to the JS codegen:
+
+**Finding 1: `new Set()` was the bottleneck.**
+
+For `additionalProperties: false`, we were creating a Set of allowed keys and looping through object keys on every validation call. Replacing this with a simple property count check (`Object.getOwnPropertyNames(d).length !== 4`) gave us a 10x improvement on that code path.
+
+**Finding 2: Regex was recreated per call.**
+
+Our codegen put `new RegExp('^[0-9]{5}$')` inside the generated function body. Every `validate()` call compiled the regex from scratch. Moving it to a closure (compiled once, reused via factory pattern) gave us 1.8x.
+
+**Finding 3: Required checks were redundant.**
+
+We were checking `if (d.id === undefined) return false` and then later `if (!Number.isInteger(d.id)) return false`. But `Number.isInteger(undefined)` already returns `false`. The type check catches missing properties for free. Removing the redundant required check eliminated one property access per required field.
+
+**Finding 4: additionalProperties check placement matters.**
+
+Moving the property count check from the beginning to the end of the function let V8 optimize the type checks first. Valid data (the common case) runs through fast type checks before hitting the more expensive property enumeration.
+
+Each optimization was small. Together they took isValidObject from 13M to 215M ops/sec.
+
+## The typebox comparison
+
+Someone asked "How fast is it compared to TypeBox?" We benchmarked it honestly.
+
+On a simple schema without format validators (typebox 0.x didn't support them), the numbers were close. Then sinclairzx81, TypeBox's creator, pointed out that TypeBox 1.x is fully JSON Schema compliant with RFC format support.
+
+We updated the benchmark to use the same raw JSON Schema on both sides, with `format: 'email'` included. The results:
+
+- Boolean check: ata 4.9x faster
+- Compile: ata 108x faster
+- First validation: ata 80x faster
+
+The format validator difference is because ata uses hand-written parsers (indexOf-based email check) while most libraries use regex. No regex means no backtracking overhead.
+
+## What we learned
+
+**Profile before optimizing.** We wasted time guessing at bottlenecks early on. The profiling approach (add one keyword at a time, measure the drop) found problems we never would have guessed.
+
+**Lazy beats eager.** Not compiling things you don't need sounds obvious, but ajv's architecture makes it impossible. We had the advantage of designing from scratch.
+
+**Be honest about numbers.** Matteo caught us with misleading benchmarks early on (comparing JSON string validation without accounting for JSON.parse). We fixed it and learned to always show what's being measured, under what conditions. Every benchmark file in the repo has notes explaining what it tests and what it doesn't.
+
+**Listen to feedback.** Every major improvement came from someone else's suggestion. Matteo pointed us to cold start. Lemire taught us profiling. sinclairzx81 told us about typebox 1.x format support. A random Twitter user suggested mitata for process isolation.
+
+## Current state
+
+ata-validator is open source, published on npm, and used with Fastify via the fastify-ata plugin. Daniel Lemire is a co-author. We have 98.4% spec compliance on the JSON Schema Test Suite (Draft 2020-12).
+
+The numbers, measured with mitata:
+
+- Schema compilation: 2,083x faster than ajv
+- First validation: 761x faster than ajv
+- isValidObject: 3.9x faster than ajv
+- validate(obj) valid: 1.9x faster than ajv
+- vs typebox 1.x: 4.9x faster (with format validators)
+- ReDoS protection: 2,391x faster (RE2 regex)
+
+If you want to try it:
+
+```
+npm install ata-validator
+```
+
+GitHub: [github.com/ata-core/ata-validator](https://github.com/ata-core/ata-validator)
+
+Site: [ata-validator.com](https://ata-validator.com)
