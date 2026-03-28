@@ -85,9 +85,9 @@ On a simple schema without format validators (typebox 0.x didn't support them), 
 
 We updated the benchmark to use the same raw JSON Schema on both sides, with `format: 'email'` included. The results:
 
-- Boolean check: ata 4.9x faster
-- Compile: ata 108x faster
-- First validation: ata 80x faster
+- Boolean check: ata 5.0x faster
+- Compile: ata 110x faster
+- First validation: ata 85x faster
 
 The format validator difference is because ata uses hand-written parsers (indexOf-based email check) while most libraries use regex. No regex means no backtracking overhead.
 
@@ -107,11 +107,11 @@ ata-validator is open source, published on npm, and used with Fastify via the fa
 
 The numbers, measured with mitata:
 
-- Schema compilation: 2,083x faster than ajv
-- First validation: 761x faster than ajv
-- isValidObject: 3.9x faster than ajv
-- validate(obj) valid: 1.9x faster than ajv
-- vs typebox 1.x: 4.9x faster (with format validators)
+- Schema compilation: 2,067x faster than ajv
+- First validation: 793x faster than ajv
+- isValidObject: 3.8x faster than ajv
+- validate(obj) valid: 1.7x faster than ajv
+- vs typebox 1.x: 5.0x faster (with format validators)
 - ReDoS protection: 2,391x faster (RE2 regex)
 
 If you want to try it:
