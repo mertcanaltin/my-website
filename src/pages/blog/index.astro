@@ -6,12 +6,29 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const posts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const featured = posts[0];
 const rest = posts.slice(1);
+
+const tagColors: Record<string, string> = {
+	coding: '#f48120',
+	security: '#e04e39',
+	performance: '#2337ff',
+	'open-source': '#1da562',
+	nodejs: '#68a063',
+	personal: '#8b5cf6',
+};
+
+function getTagColor(tag: string | undefined): string {
+	if (!tag) return '#f48120';
+	return tagColors[tag.toLowerCase()] || '#f48120';
+}
+
+function getTag(post: any): string {
+	return post.data?.tag || 'coding';
+}
 ---
 
 <!doctype html>
@@ -21,41 +38,45 @@ const rest = posts.slice(1);
 	</head>
 	<body>
 		<Header />
-		<div class="blog-page">
-			<!-- Hero -->
-			<section class="blog-hero">
-				<div class="blog-glow"></div>
-				<span class="blog-badge">Blog</span>
-				<h1 class="blog-title">Thoughts & <span class="blog-gradient">Insights</span></h1>
-				<p class="blog-desc">Writing about Node.js internals, performance optimization, open source, and software engineering.</p>
-			</section>
-
-			<!-- Featured -->
+		<div class="cf-blog-page">
+			<!-- Featured Post -->
 			{featured && (
-				<a href={`/blog/${featured.id}/`} class="blog-featured">
-					<img src={featured.data.heroImage} alt={featured.data.title} class="blog-featured-img" />
-					<div class="blog-featured-overlay">
-						<span class="blog-featured-tag">{featured.data.tag}</span>
-						<h2 class="blog-featured-title">{featured.data.title}</h2>
-						<p class="blog-featured-desc">{featured.data.description}</p>
-						<span class="blog-featured-date"><FormattedDate date={featured.data.pubDate} /></span>
+				<section class="cf-featured">
+					<div class="cf-featured-content">
+						{featured.data.heroImage && (
+							<img src={featured.data.heroImage} alt="" class="cf-featured-img" />
+						)}
+						<div class="cf-featured-text">
+							<h1 class="cf-featured-title">
+								<a href={`/blog/${featured.id}/`}>{featured.data.title}</a>
+							</h1>
+							<p class="cf-featured-date"><FormattedDate date={featured.data.pubDate} /></p>
+							<div class="cf-featured-tags">
+								<span class="cf-tag" style={`background: ${getTagColor(getTag(featured))}`}>{getTag(featured)}</span>
+							</div>
+							<p class="cf-featured-desc">{featured.data.description}</p>
+							<a href={`/blog/${featured.id}/`} class="cf-continue-reading">Continue reading &raquo;</a>
+						</div>
 					</div>
-				</a>
+				</section>
 			)}
+
+			<hr class="cf-divider" />
 
 			<!-- Posts Grid -->
 			{rest.length > 0 && (
-				<div class="blog-grid">
+				<div class="cf-grid">
 					{rest.map((post) => (
-						<a href={`/blog/${post.id}/`} class="blog-card">
-							<img src={post.data.heroImage} alt={post.data.title} class="blog-card-img" />
-							<div class="blog-card-info">
-								<span class="blog-card-tag">{post.data.tag}</span>
-								<h3 class="blog-card-title">{post.data.title}</h3>
-								<p class="blog-card-excerpt">{post.data.description}</p>
-								<span class="blog-card-date"><FormattedDate date={post.data.pubDate} /></span>
+						<article class="cf-card">
+							<h2 class="cf-card-title">
+								<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+							</h2>
+							<p class="cf-card-date"><FormattedDate date={post.data.pubDate} /></p>
+							<div class="cf-card-tags">
+								<span class="cf-tag" style={`background: ${getTagColor(getTag(post))}`}>{getTag(post)}</span>
 							</div>
-						</a>
+							<p class="cf-card-desc">{post.data.description}</p>
+						</article>
 					))}
 				</div>
 			)}
@@ -65,219 +86,163 @@ const rest = posts.slice(1);
 </html>
 
 <style is:global>
-	.blog-page {
-		width: 1040px;
+	.cf-blog-page {
+		width: 1200px;
 		max-width: calc(100% - 2em);
 		margin: 0 auto;
-		padding: 1em 1em 3em;
-	}
-
-	.blog-page h1, .blog-page h2, .blog-page h3 { margin: 0; line-height: 1.2; color: rgb(var(--black)); }
-	.blog-page p { margin: 0; }
-	.blog-page a { text-decoration: none; color: inherit; }
-
-	/* Hero */
-	.blog-hero {
-		position: relative;
-		text-align: center;
-		padding: 4em 1em 3em;
-		overflow: hidden;
-	}
-
-	.blog-glow {
-		position: absolute;
-		top: -120px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 600px;
-		height: 600px;
-		background: radial-gradient(circle, rgba(35, 55, 255, 0.08) 0%, transparent 70%);
-		pointer-events: none;
-	}
-
-	.blog-badge {
-		position: relative; z-index: 1;
-		display: inline-block;
-		padding: 0.35em 1em;
-		font-size: 0.7em;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--accent);
-		background: rgba(35, 55, 255, 0.06);
-		border: 1px solid rgba(35, 55, 255, 0.15);
-		border-radius: 100px;
-		margin-bottom: 1.5em;
-	}
-
-	.blog-title {
-		position: relative; z-index: 1;
-		font-size: 3em;
-		letter-spacing: -0.03em;
-		margin-bottom: 0.4em;
-	}
-
-	.blog-gradient {
-		background: linear-gradient(135deg, var(--accent) 0%, #6366f1 40%, #8b5cf6 100%);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
-
-	.blog-desc {
-		position: relative; z-index: 1;
-		font-size: 1.05em;
-		color: rgb(var(--gray));
-		max-width: 520px;
-		margin: 0 auto;
-		line-height: 1.6;
+		padding: 2em 1em 3em;
 	}
 
 	/* Featured */
-	.blog-featured {
-		display: block;
-		position: relative;
-		border-radius: 20px;
-		overflow: hidden;
-		margin-bottom: 2em;
-		transition: all 0.3s ease;
+	.cf-featured {
+		padding: 1em 0 2em;
 	}
 
-	.blog-featured:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 16px 48px rgba(var(--black), 15%);
+	.cf-featured-content {
+		display: flex;
+		gap: 2em;
+		align-items: flex-start;
 	}
 
-	.blog-featured-img {
-		width: 100%;
-		height: 380px;
+	.cf-featured-img {
+		width: 180px;
+		height: 130px;
 		object-fit: cover;
-		display: block;
+		border-radius: 8px;
+		flex-shrink: 0;
 	}
 
-	.blog-featured-overlay {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		padding: 3em 2.5em 2em;
-		background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+	.cf-featured-text {
+		flex: 1;
 	}
 
-	.blog-featured-tag {
-		display: inline-block;
-		padding: 0.2em 0.7em;
-		font-size: 0.65em;
+	.cf-featured-title {
+		font-size: 1.6em;
+		line-height: 1.3;
+		margin: 0 0 0.3em;
 		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: white;
-		background: rgba(255, 255, 255, 0.15);
-		border-radius: 6px;
+		color: rgb(var(--black));
+	}
+
+	.cf-featured-title a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.cf-featured-title a:hover {
+		color: var(--accent);
+	}
+
+	.cf-featured-date {
+		font-size: 0.8em;
+		color: rgb(var(--gray));
+		margin: 0 0 0.5em;
+	}
+
+	.cf-featured-tags {
 		margin-bottom: 0.8em;
-		backdrop-filter: blur(4px);
 	}
 
-	.blog-featured-title {
+	.cf-tag {
+		display: inline-block;
+		padding: 0.15em 0.6em;
+		font-size: 0.7em;
+		font-weight: 600;
 		color: white;
-		font-size: 1.8em;
-		letter-spacing: -0.02em;
-		margin-bottom: 0.4em;
+		background: #36393a !important;
+		border-radius: 4px;
+		text-transform: capitalize;
+		margin-right: 0.3em;
 	}
 
-	.blog-featured-desc {
-		color: rgba(255, 255, 255, 0.75);
-		font-size: 0.9em;
-		line-height: 1.5;
-		margin-bottom: 0.8em;
-		max-width: 600px;
+	.cf-featured-desc {
+		font-size: 0.92em;
+		color: rgb(var(--gray-dark));
+		line-height: 1.6;
+		margin: 0 0 0.8em;
 	}
 
-	.blog-featured-date {
-		font-size: 0.78em;
-		color: rgba(255, 255, 255, 0.5);
+	.cf-continue-reading {
+		font-size: 0.88em;
+		color: var(--accent);
+		text-decoration: none;
+		font-weight: 600;
+	}
+
+	.cf-continue-reading:hover {
+		text-decoration: underline;
+	}
+
+	.cf-divider {
+		border: none;
+		border-top: 1px solid rgb(var(--gray-light));
+		margin: 0 0 2em;
 	}
 
 	/* Grid */
-	.blog-grid {
+	.cf-grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 1.2em;
+		gap: 2.5em 3em;
 	}
 
-	.blog-card {
-		display: block;
-		background: white;
-		border: 1px solid rgb(var(--gray-light));
-		border-radius: 16px;
-		overflow: hidden;
-		transition: all 0.3s ease;
+	.cf-card {
+		padding-bottom: 2em;
+		border-bottom: 1px solid rgb(var(--gray-light));
 	}
 
-	.blog-card:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 12px 36px rgba(var(--gray), 15%);
-		border-color: rgba(35, 55, 255, 0.12);
-	}
-
-	.blog-card:hover .blog-card-title {
-		color: var(--accent);
-	}
-
-	.blog-card-img {
-		width: 100%;
-		height: 180px;
-		object-fit: cover;
-		border-radius: 0;
-	}
-
-	.blog-card-info {
-		padding: 1.3em 1.5em;
-	}
-
-	.blog-card-tag {
-		display: inline-block;
-		padding: 0.2em 0.7em;
-		font-size: 0.65em;
+	.cf-card-title {
+		font-size: 1.15em;
+		line-height: 1.35;
+		margin: 0 0 0.3em;
 		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		color: rgb(var(--black));
+	}
+
+	.cf-card-title a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.cf-card-title a:hover {
 		color: var(--accent);
-		background: rgba(35, 55, 255, 0.06);
-		border-radius: 6px;
+	}
+
+	.cf-card-date {
+		font-size: 0.78em;
+		color: rgb(var(--gray));
+		margin: 0 0 0.5em;
+	}
+
+	.cf-card-tags {
 		margin-bottom: 0.6em;
 	}
 
-	.blog-card-title {
-		font-size: 1.05em;
-		line-height: 1.35;
-		margin-bottom: 0.4em;
-		transition: color 0.2s ease;
-	}
-
-	.blog-card-excerpt {
-		font-size: 0.82em;
-		color: rgb(var(--gray));
-		line-height: 1.55;
-		margin-bottom: 0.8em;
+	.cf-card-desc {
+		font-size: 0.85em;
+		color: rgb(var(--gray-dark));
+		line-height: 1.6;
+		margin: 0;
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
 
-	.blog-card-date {
-		font-size: 0.75em;
-		color: rgb(var(--gray));
-		font-weight: 500;
-	}
-
 	/* Responsive */
 	@media (max-width: 768px) {
-		.blog-title { font-size: 2.2em; }
-		.blog-featured-img { height: 260px; }
-		.blog-featured-title { font-size: 1.3em; }
-		.blog-featured-overlay { padding: 2em 1.5em 1.5em; }
-		.blog-grid { grid-template-columns: 1fr; }
+		.cf-featured-content {
+			flex-direction: column;
+		}
+		.cf-featured-img {
+			width: 100%;
+			height: 140px;
+		}
+		.cf-featured-title {
+			font-size: 1.3em;
+		}
+		.cf-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

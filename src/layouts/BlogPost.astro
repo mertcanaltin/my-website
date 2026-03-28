@@ -4,10 +4,30 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import { getCollection } from 'astro:content';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const props = Astro.props as any;
+const { title, description, pubDate, updatedDate, heroImage, tag, authors } = props;
+
+const allPosts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const currentIndex = allPosts.findIndex((p) => p.data.title === title);
+const relatedPosts = allPosts.filter((_, i) => i !== currentIndex).slice(0, 3);
+
+const tagColors: Record<string, string> = {
+	coding: '#f48120',
+	security: '#e04e39',
+	performance: '#2337ff',
+	'open-source': '#1da562',
+	nodejs: '#68a063',
+};
+
+function getTagColor(t: string): string {
+	return tagColors[t?.toLowerCase()] || '#f48120';
+}
 ---
 
 <html lang="en">
@@ -17,181 +37,168 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
 	<body>
 		<Header />
-		<div class="blogpost-page">
+		<div class="cf-post-page">
 			<article>
-				<div class="blogpost-content">
-					<div class="blogpost-header">
-						<a href="/blog" class="blogpost-back">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-							Back to Blog
-						</a>
-						<div class="blogpost-meta">
+				<div class="cf-post-content">
+					<div class="cf-post-header">
+						<h1 class="cf-post-title">{title}</h1>
+						<div class="cf-post-meta">
 							<FormattedDate date={pubDate} />
 							{updatedDate && (
-								<span class="blogpost-updated">
-									(Updated: <FormattedDate date={updatedDate} />)
+								<span class="cf-post-updated">
+									&middot; Updated: <FormattedDate date={updatedDate} />
 								</span>
 							)}
 						</div>
-						<h1 class="blogpost-title">{title}</h1>
-						<p class="blogpost-description">{description}</p>
-						<hr class="blogpost-divider" />
+						{tag && (
+							<div class="cf-post-tags">
+								<span class="cf-post-tag" style={`background: ${getTagColor(tag)}`}>{tag}</span>
+							</div>
+						)}
+						{heroImage && (
+							<div class="cf-post-hero">
+								<img src={heroImage} alt="" class="cf-post-hero-img" />
+							</div>
+						)}
 					</div>
-					<div class="blogpost-body prose">
+					<div class="cf-post-body prose">
 						<slot />
 					</div>
 				</div>
 			</article>
+
+			<!-- Related Posts -->
+			{relatedPosts.length > 0 && (
+				<section class="cf-related">
+					<h3 class="cf-related-heading">Related Posts</h3>
+					<div class="cf-related-grid">
+						{relatedPosts.map((post) => (
+							<a href={`/blog/${post.id}/`} class="cf-related-card">
+								<h4 class="cf-related-title">{post.data.title}</h4>
+								<p class="cf-related-desc">{post.data.description}</p>
+								<span class="cf-related-meta">
+									<FormattedDate date={post.data.pubDate} />
+								</span>
+							</a>
+						))}
+					</div>
+				</section>
+			)}
 		</div>
 		<Footer />
 	</body>
 </html>
 
 <style is:global>
-	.blogpost-page {
+	.cf-post-page {
 		width: 100%;
 		max-width: 100%;
 		margin: 0;
 		padding: 0;
 	}
 
-	/* Hero image */
-	.blogpost-hero {
-		position: relative;
-		width: 100%;
-		max-height: 420px;
-		overflow: hidden;
-	}
-
-	.blogpost-hero-img {
-		width: 100%;
-		height: 420px;
-		object-fit: cover;
-		display: block;
-		border-radius: 0;
-	}
-
-	.blogpost-hero-overlay {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		height: 120px;
-		background: linear-gradient(0deg, rgba(var(--gray-light), 0.8) 0%, transparent 100%);
-		pointer-events: none;
-	}
-
 	/* Content */
-	.blogpost-content {
-		width: 720px;
+	.cf-post-content {
+		width: 760px;
 		max-width: calc(100% - 2em);
 		margin: 0 auto;
 		padding: 2em 1em 3em;
 	}
 
 	/* Header */
-	.blogpost-header {
+	.cf-post-header {
 		margin-bottom: 2em;
-		text-align: center;
 	}
 
-	.blogpost-back {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4em;
-		font-size: 0.82em;
-		font-weight: 600;
-		color: rgb(var(--gray));
-		text-decoration: none;
-		margin-bottom: 2em;
-		transition: all 0.2s ease;
-	}
-
-	.blogpost-back:hover {
-		color: var(--accent);
-		gap: 0.6em;
-	}
-
-	.blogpost-meta {
-		font-size: 0.85em;
-		color: rgb(var(--gray));
-		margin-bottom: 0.8em;
-	}
-
-	.blogpost-updated {
-		font-style: italic;
-		margin-left: 0.3em;
-		color: rgb(var(--gray));
-	}
-
-	.blogpost-title {
-		font-size: 2.4em;
-		letter-spacing: -0.03em;
-		line-height: 1.15;
-		margin: 0 0 0.5em;
+	.cf-post-title {
+		font-size: 2.2em;
+		letter-spacing: -0.02em;
+		line-height: 1.2;
+		margin: 0 0 0.4em;
 		color: rgb(var(--black));
 	}
 
-	.blogpost-description {
-		font-size: 1.05em;
+	.cf-post-meta {
+		font-size: 0.82em;
 		color: rgb(var(--gray));
-		line-height: 1.6;
-		max-width: 600px;
-		margin: 0 auto 1.5em;
+		margin-bottom: 0.6em;
 	}
 
-	.blogpost-divider {
-		border: none;
-		height: 2px;
-		background: linear-gradient(90deg, transparent, rgb(var(--gray-light)), transparent);
-		margin: 0;
+	.cf-post-updated {
+		color: rgb(var(--gray));
+	}
+
+	.cf-post-tags {
+		margin-bottom: 1.2em;
+	}
+
+	.cf-post-tag {
+		display: inline-block;
+		padding: 0.15em 0.6em;
+		font-size: 0.7em;
+		font-weight: 600;
+		color: white;
+		border-radius: 4px;
+		text-transform: capitalize;
+	}
+
+	.cf-post-hero {
+		margin: 1.5em 0 0;
+	}
+
+	.cf-post-hero-img {
+		max-width: 400px;
+		border-radius: 8px;
+		display: block;
 	}
 
 	/* Body content */
-	.blogpost-body {
+	.cf-post-body {
 		color: rgb(var(--gray-dark));
 		line-height: 1.8;
 		font-size: 1em;
 	}
 
-	.blogpost-body h2 {
-		font-size: 1.6em;
+	.cf-post-body h2 {
+		font-size: 1.5em;
 		margin: 2em 0 0.6em;
-		letter-spacing: -0.02em;
+		letter-spacing: -0.01em;
 		padding-bottom: 0.3em;
 		border-bottom: 1px solid rgb(var(--gray-light));
+		color: rgb(var(--black));
 	}
 
-	.blogpost-body h3 {
-		font-size: 1.3em;
+	.cf-post-body h3 {
+		font-size: 1.25em;
 		margin: 1.5em 0 0.5em;
+		color: rgb(var(--black));
 	}
 
-	.blogpost-body p {
+	.cf-post-body p {
 		margin-bottom: 1.5em;
 	}
 
-	.blogpost-body a {
+	.cf-post-body a {
 		color: var(--accent);
 		text-decoration: underline;
 		text-underline-offset: 3px;
 		text-decoration-thickness: 1px;
 	}
 
-	.blogpost-body a:hover {
+	.cf-post-body a:hover {
 		text-decoration-thickness: 2px;
 	}
 
-	.blogpost-body ul, .blogpost-body ol {
+	.cf-post-body ul, .cf-post-body ol {
 		margin-bottom: 1.5em;
 		padding-left: 1.5em;
 	}
 
-	.blogpost-body li {
+	.cf-post-body li {
 		margin-bottom: 0.4em;
 	}
 
-	.blogpost-body code {
+	.cf-post-body code {
 		padding: 0.15em 0.4em;
 		font-size: 0.88em;
 		background: rgb(var(--gray-light));
@@ -199,16 +206,15 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
 	}
 
-	.blogpost-body pre {
+	.cf-post-body pre {
 		padding: 1.5em;
-		border-radius: 12px;
+		border-radius: 8px;
 		background: #1e1e2e;
 		overflow-x: auto;
 		margin-bottom: 1.5em;
-		box-shadow: 0 4px 16px rgba(var(--black), 10%);
 	}
 
-	.blogpost-body pre code {
+	.cf-post-body pre code {
 		all: unset;
 		font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
 		font-size: 0.85em;
@@ -216,7 +222,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		color: rgba(255, 255, 255, 0.85);
 	}
 
-	.blogpost-body blockquote {
+	.cf-post-body blockquote {
 		border-left: 3px solid var(--accent);
 		padding: 0.8em 0 0.8em 1.5em;
 		margin: 1.5em 0;
@@ -225,23 +231,87 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		font-size: 1em;
 	}
 
-	.blogpost-body img {
-		border-radius: 12px;
-		box-shadow: 0 4px 16px rgba(var(--gray), 15%);
+	.cf-post-body img {
+		border-radius: 8px;
 		margin: 1em 0;
 	}
 
-	.blogpost-body hr {
+	.cf-post-body hr {
 		border: none;
 		height: 1px;
 		background: rgb(var(--gray-light));
 		margin: 2em 0;
 	}
 
+	/* Related Posts */
+	.cf-related {
+		width: 760px;
+		max-width: calc(100% - 2em);
+		margin: 0 auto;
+		padding: 0 1em 3em;
+		border-top: 1px solid rgb(var(--gray-light));
+	}
+
+	.cf-related-heading {
+		font-size: 1.1em;
+		font-weight: 700;
+		color: rgb(var(--black));
+		margin: 2em 0 1em;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+	}
+
+	.cf-related-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.5em;
+	}
+
+	.cf-related-card {
+		text-decoration: none;
+		color: inherit;
+		padding: 1em;
+		border: 1px solid rgb(var(--gray-light));
+		border-radius: 8px;
+		transition: border-color 0.2s;
+	}
+
+	.cf-related-card:hover {
+		border-color: var(--accent);
+	}
+
+	.cf-related-title {
+		font-size: 0.9em;
+		line-height: 1.3;
+		margin: 0 0 0.5em;
+		font-weight: 700;
+		color: rgb(var(--black));
+	}
+
+	.cf-related-card:hover .cf-related-title {
+		color: var(--accent);
+	}
+
+	.cf-related-desc {
+		font-size: 0.78em;
+		color: rgb(var(--gray));
+		line-height: 1.5;
+		margin: 0 0 0.5em;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.cf-related-meta {
+		font-size: 0.72em;
+		color: rgb(var(--gray));
+	}
+
 	/* Responsive */
 	@media (max-width: 768px) {
-		.blogpost-hero-img { height: 260px; }
-		.blogpost-title { font-size: 1.8em; }
-		.blogpost-content { padding: 1.5em 1em 2em; }
+		.cf-post-title { font-size: 1.7em; }
+		.cf-post-content { padding: 1.5em 1em 2em; }
+		.cf-related-grid { grid-template-columns: 1fr; }
 	}
 </style>
