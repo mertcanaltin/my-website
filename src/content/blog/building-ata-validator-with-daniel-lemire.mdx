@@ -15,9 +15,15 @@ I was building a JSON Schema validator as a side project. The idea was simple: w
 
 I shared the early results with Daniel Lemire, the creator of simdjson. He liked the concept and started contributing. His first PR optimized the bitmask operations in the C++ layer. Small change, big impact.
 
-Then Matteo Collina from Fastify looked at it and said something that changed the direction of the project: "Doesn't sound really interesting unless you care for really fast startups."
+Then Matteo Collina from Fastify started opening issues on our repos. He didn't just give opinions, he dug into the code and pointed out real problems.
 
-He was right. Our validation speed was good but not revolutionary. The real opportunity was cold start.
+His first issue on ata-validator was about our benchmarks. We were comparing ata's C++ JSON parsing against ajv's `JSON.parse()`, which wasn't fair because Fastify already handles JSON parsing. In a real Fastify app, what matters is `validate(req.body)` performance, not JSON string parsing. He was right. We rewrote the benchmarks to measure what actually matters.
+
+He opened another issue on fastify-ata asking about default values. ajv applies defaults to objects during validation, and ata didn't support that. We added it.
+
+He also caught us claiming "CSP safe" in our docs, which doesn't make sense for a Node.js native addon. We removed it.
+
+Each issue pushed us to be more honest and more complete. He then pointed us to Manuel Spigolon's [blog post](https://backend.cafe/how-to-unlock-the-fastest-fastify-server-startup) about Fastify startup optimization and said we should benchmark against that approach. That's when everything changed.
 
 ## The cold start problem
 
@@ -55,11 +61,15 @@ For `additionalProperties: false`, we were creating a Set of allowed keys and lo
 
 Our codegen put `new RegExp('^[0-9]{5}$')` inside the generated function body. Every `validate()` call compiled the regex from scratch. Moving it to a closure (compiled once, reused via factory pattern) gave us 1.8x.
 
-**Finding 3: Required checks were redundant.**
+**Finding 3: Destructuring was slower than direct access.**
+
+We thought V8 would optimize `const {"id": _h0} = d` (destructuring batch read) better than `d["id"]` (direct access). Profiling showed the opposite. Direct property access with V8's inline cache was faster. Simpler code, fewer local variables, better JIT.
+
+**Finding 4: Required checks were redundant.**
 
 We were checking `if (d.id === undefined) return false` and then later `if (!Number.isInteger(d.id)) return false`. But `Number.isInteger(undefined)` already returns `false`. The type check catches missing properties for free. Removing the redundant required check eliminated one property access per required field.
 
-**Finding 4: additionalProperties check placement matters.**
+**Finding 5: additionalProperties check placement matters.**
 
 Moving the property count check from the beginning to the end of the function let V8 optimize the type checks first. Valid data (the common case) runs through fast type checks before hitting the more expensive property enumeration.
 
