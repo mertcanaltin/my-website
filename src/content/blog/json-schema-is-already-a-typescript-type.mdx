@@ -164,7 +164,7 @@ The bundle delta is where the move is. For a Cloudflare Worker, a Vercel Edge fu
 ## When not to reach for this
 
 - **Schemas defined at runtime** (a user uploads a JSON Schema through an API, you validate against it) need a runtime validator. Build-time compile does not see those.
-- **Projects that rely on ajv plugins** (`ajv-keywords`, `ajv-errors`, `ajv-i18n`) — ata does not have a custom-keyword API yet.
+- **Projects that rely on `ajv-errors` or `ajv-i18n`** — those plugins don't have ata equivalents yet. If you only need `instanceof` / `typeof` style custom keywords, [ata-keywords](https://github.com/ata-core/ata-keywords) covers that case.
 - **Backend-only Node servers without bundle concerns**, where the bundle size win does not apply. The runtime `Validator` from ata-validator is fine, and the compile step is an extra moving part with no payoff there.
 
 For everything else — OpenAPI-driven apps, edge workers, forms with a schema file per view, SvelteKit or Astro projects that already use Vite — the compile-then-import pattern is simpler than the three-library pattern it replaces.
