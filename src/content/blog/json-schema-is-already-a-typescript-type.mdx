@@ -52,8 +52,8 @@ One file. No `as const`, no separate type library, no runtime compile step. That
 
 ata-vite is a Vite plugin. It watches a glob of JSON Schema files, and for each one it writes two paired files next to it:
 
-- `<name>.validator.mjs` — a self-contained validator, around 1 KB gzipped for a typical 10-field schema. No runtime dependency on any ata package.
-- `<name>.validator.d.mts` — a TypeScript declaration, with `isValid` exported as a type predicate so consumers get narrowing inside the guard.
+- `<name>.validator.mjs`: a self-contained validator, around 1 KB gzipped for a typical 10-field schema. No runtime dependency on any ata package.
+- `<name>.validator.d.mts`: a TypeScript declaration, with `isValid` exported as a type predicate so consumers get narrowing inside the guard.
 
 Setup is one block in the Vite config:
 
@@ -164,10 +164,10 @@ The bundle delta is where the move is. For a Cloudflare Worker, a Vercel Edge fu
 ## When not to reach for this
 
 - **Schemas defined at runtime** (a user uploads a JSON Schema through an API, you validate against it) need a runtime validator. Build-time compile does not see those.
-- **Projects that rely on `ajv-errors` or `ajv-i18n`** — those plugins don't have ata equivalents yet. If you only need `instanceof` / `typeof` style custom keywords, [ata-keywords](https://github.com/ata-core/ata-keywords) covers that case.
+- **Projects that rely on `ajv-errors` or `ajv-i18n`**, where those plugins don't have ata equivalents yet. If you only need `instanceof` / `typeof` style custom keywords, [ata-keywords](https://github.com/ata-core/ata-keywords) covers that case.
 - **Backend-only Node servers without bundle concerns**, where the bundle size win does not apply. The runtime `Validator` from ata-validator is fine, and the compile step is an extra moving part with no payoff there.
 
-For everything else — OpenAPI-driven apps, edge workers, forms with a schema file per view, SvelteKit or Astro projects that already use Vite — the compile-then-import pattern is simpler than the three-library pattern it replaces.
+For everything else (OpenAPI-driven apps, edge workers, forms with a schema file per view, SvelteKit or Astro projects that already use Vite) the compile-then-import pattern is simpler than the three-library pattern it replaces.
 
 ## Install
 
@@ -181,6 +181,6 @@ One small starting point that tends to sell the idea: pick a single schema in th
 
 ## Links
 
-- [ata-vite on GitHub](https://github.com/ata-core/ata-vite) — issues and source
-- [ata-vite on npm](https://www.npmjs.com/package/ata-vite) — 0.1.0
-- [ata-validator](https://github.com/ata-core/ata-validator) — the runtime library that powers the compiled output
+- [ata-vite on GitHub](https://github.com/ata-core/ata-vite): issues and source
+- [ata-vite on npm](https://www.npmjs.com/package/ata-vite), 0.1.0
+- [ata-validator](https://github.com/ata-core/ata-validator): the runtime library that powers the compiled output
