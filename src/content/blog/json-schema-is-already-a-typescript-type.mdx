@@ -1,0 +1,186 @@
+---
+title: 'Your JSON Schema is already a TypeScript type'
+description: >-
+  A Vite plugin that turns each JSON Schema file into a validator plus a TypeScript declaration at build time. One file in, typed validator out, around 1 KB gzipped per schema.
+type: Blog
+pubDate: 'Apr 24 2026'
+tag: coding
+status: published
+heroImage: "/blog/narrowing-hero.png"
+---
+
+Most TypeScript projects that use JSON Schema end up with this shape of code:
+
+```ts
+import Ajv from 'ajv'
+import type { FromSchema } from 'json-schema-to-ts'
+
+const userSchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'integer', minimum: 1 },
+    name: { type: 'string', minLength: 1 },
+    role: { type: 'string', enum: ['admin', 'user', 'guest'] },
+  },
+  required: ['id', 'name'],
+} as const
+
+type User = FromSchema<typeof userSchema>
+
+const ajv = new Ajv()
+const validate = ajv.compile(userSchema)
+```
+
+Three moving parts for one idea: the runtime validator, the type derivation, and the `as const` so TypeScript can read the schema structurally. Ship it, and the browser carries ajv (~30 KB gzipped) plus the schema itself. Edit the schema, and you have to remember to keep the type in sync.
+
+The same thought in a simpler shape:
+
+```ts
+import { isValid, type User } from './user.validator.mjs'
+
+function handle(input: unknown) {
+  if (isValid(input)) {
+    input.id    // number
+    input.role  // 'admin' | 'user' | 'guest' | undefined
+  }
+}
+```
+
+One file. No `as const`, no separate type library, no runtime compile step. That's what ata-vite produces.
+
+## The plugin
+
+ata-vite is a Vite plugin. It watches a glob of JSON Schema files, and for each one it writes two paired files next to it:
+
+- `<name>.validator.mjs` — a self-contained validator, around 1 KB gzipped for a typical 10-field schema. No runtime dependency on any ata package.
+- `<name>.validator.d.mts` — a TypeScript declaration, with `isValid` exported as a type predicate so consumers get narrowing inside the guard.
+
+Setup is one block in the Vite config:
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite'
+import ata from 'ata-vite'
+
+export default defineConfig({
+  plugins: [
+    ata({ schemas: 'schemas/**/*.json' }),
+  ],
+})
+```
+
+On build it compiles every matched schema once. In dev mode it recompiles the affected file on save and Vite picks up the change through its own HMR. If the generated content is byte-identical to what's already on disk, the plugin skips the write, which keeps TypeScript's watcher quiet during no-op rebuilds.
+
+## A real schema, start to finish
+
+Take `schemas/user.json`:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "id": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "email": { "type": "string" },
+    "role": { "type": "string", "enum": ["admin", "user", "guest"] },
+    "active": { "type": "boolean" }
+  },
+  "required": ["id", "name", "email"]
+}
+```
+
+After `vite build` (or the first dev-mode run), two files appear alongside it:
+
+```
+schemas/
+  user.json
+  user.validator.mjs       (1,251 bytes gzipped)
+  user.validator.d.mts     (806 bytes)
+```
+
+The `.d.mts` declares a `User` interface, a `ValidationError` shape, and the two callable entries:
+
+```ts
+export interface User {
+  id: number
+  name: string
+  email: string
+  role?: 'admin' | 'user' | 'guest'
+  active?: boolean
+}
+export declare function isValid(data: unknown): data is User
+export declare function validate(data: unknown): Result
+```
+
+In the app:
+
+```ts
+import { isValid, validate, type User } from './schemas/user.validator.mjs'
+
+function handle(req: Request) {
+  return req.json().then((input) => {
+    if (isValid(input)) {
+      // input is User here, narrowed by the type predicate.
+      return { ok: true, id: input.id, role: input.role }
+    }
+    const r = validate(input)
+    return { ok: false, errors: r.valid ? [] : r.errors }
+  })
+}
+```
+
+Hover over `input.role` in your editor and TypeScript shows `'admin' | 'user' | 'guest' | undefined`. That narrowing comes from the schema file, without a `FromSchema` wrapper or an `as const` incantation.
+
+## Options worth knowing about
+
+```ts
+ata({
+  schemas: 'schemas/**/*.json',  // glob or array of globs
+  outDir: 'src/generated',       // relocate output out of the source tree
+  format: 'esm',                 // 'esm' | 'cjs'
+  abortEarly: false,             // stub errors, ~460 B gzipped
+  types: true,                   // false to skip .d.mts / .d.cts
+})
+```
+
+Two of them worth a paragraph:
+
+**`abortEarly`** replaces the detailed error collector with a shared stub result. A failing `validate(x)` returns `{ valid: false, errors: [{ message: 'validation failed' }] }` without walking the schema again to produce detail. Output drops from around 1.2 KB gzipped to around 0.5 KB. Use it when the caller only needs a reject / accept decision, which is most public-facing route guards.
+
+**`outDir`** relocates the generated files under a mirrored path, so you can gitignore them and let CI rebuild. Handy when the schemas are a checked-in artifact but the compiled validators are build output.
+
+## Numbers
+
+Measured today on an M4 Pro, Node 25. Run-to-run variance at nanosecond scale is about ±5%.
+
+| Variant | Raw | Gzipped |
+|---|---|---|
+| ata-validator runtime bundle | 117 KB | 27 KB |
+| ata-vite output (standard) | 4.9 KB | **1.2 KB** |
+| ata-vite output (`--abort-early`) | 1.3 KB | **0.6 KB** |
+
+The bundle delta is where the move is. For a Cloudflare Worker, a Vercel Edge function, or any browser bundle that cares about the 1 MB mark, removing 26 KB of compiler code and shipping only the compiled validators is a meaningful reclaim. The runtime numbers are fine; the build-time numbers are what the article is about.
+
+## When not to reach for this
+
+- **Schemas defined at runtime** (a user uploads a JSON Schema through an API, you validate against it) need a runtime validator. Build-time compile does not see those.
+- **Projects that rely on ajv plugins** (`ajv-keywords`, `ajv-errors`, `ajv-i18n`) — ata does not have a custom-keyword API yet.
+- **Backend-only Node servers without bundle concerns**, where the bundle size win does not apply. The runtime `Validator` from ata-validator is fine, and the compile step is an extra moving part with no payoff there.
+
+For everything else — OpenAPI-driven apps, edge workers, forms with a schema file per view, SvelteKit or Astro projects that already use Vite — the compile-then-import pattern is simpler than the three-library pattern it replaces.
+
+## Install
+
+```bash
+npm install --save-dev ata-vite ata-validator
+```
+
+`ata-validator` is a peer dependency. It provides the `Validator` class that ata-vite calls during compilation; it does not ship in the runtime bundle.
+
+One small starting point that tends to sell the idea: pick a single schema in the project, run through a Vite dev server once, open the generated `.d.mts`, and hover over a narrowed field in the app code. If that feels right, the rest is a straightforward migration.
+
+## Links
+
+- [ata-vite on GitHub](https://github.com/ata-core/ata-vite) — issues and source
+- [ata-vite on npm](https://www.npmjs.com/package/ata-vite) — 0.1.0
+- [ata-validator](https://github.com/ata-core/ata-validator) — the runtime library that powers the compiled output
