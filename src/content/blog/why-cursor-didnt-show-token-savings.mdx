@@ -1,0 +1,231 @@
+---
+title: 'Why I Could Not Show a Big Token Difference Live in Cursor'
+description: >-
+  I tried to show Composto's token savings live in Cursor and the numbers came out much closer to Cursor's default behavior than I expected. This post explains why that happened, why it is not entirely surprising, and how I would measure the product more honestly.
+type: Blog
+pubDate: 'Jun 28 2026'
+tag: coding
+status: published
+heroImage: '/blog/narrowing-hero.png'
+---
+
+Last week I tried to demonstrate Composto live inside Cursor.
+
+The demo was simple in theory: open a real coding task, let the agent work, and show that structural context is cheaper than raw code. I expected a visible token gap.
+
+That is not what happened.
+
+The numbers ended up much closer to Cursor's default behavior than I wanted. Not identical, but close enough that the demo did not land. If I am honest, that result was frustrating for about ten minutes and then clarifying for much longer.
+
+This post is the honest version of what I think happened.
+
+## The short answer
+
+Composto does have an MCP integration for Cursor, but Cursor is not the same environment as Claude Code with a hard compression hook.
+
+That distinction matters.
+
+In Claude Code, I can force a stronger behavior: large code reads can be intercepted and replaced with structural IR before they become expensive context. In Cursor, the integration is softer. The tool is available, but the agent can still choose built-in file reads, built-in search, or raw source when it thinks that is the safer move.
+
+So the live result was not really saying:
+
+> Composto has no value.
+
+It was saying something narrower and more useful:
+
+> In Cursor, MCP availability alone does not guarantee dramatic session-level token savings.
+
+That is a very different claim.
+
+## Why the live token gap stayed small
+
+There are a few concrete reasons.
+
+### 1. MCP exposure is not the same as behavior control
+
+This is the biggest one.
+
+Giving Cursor access to `composto_context` or `composto_ir` does not mean the agent will consistently prefer those tools over its own raw reading flow. Cursor still has strong built-in habits. If the model thinks it needs exact code, it will often open raw files anyway.
+
+That means Composto can be present and useful without dominating the whole context acquisition path.
+
+### 2. Some tasks naturally collapse back to raw code
+
+Structural IR is strongest when the agent is still searching:
+
+- Which files matter?
+- What is the shape of this module?
+- What depends on this function?
+- What is the likely target area?
+
+But once the task becomes exact, the agent often needs raw source again:
+
+- precise edits
+- exact strings
+- regex details
+- syntax-sensitive debugging
+- comments or formatting
+
+In other words, discovery compresses well. Execution often does not.
+
+If your live demo spends most of its time in exact execution, the total token delta can look smaller than expected even if Composto helped earlier.
+
+### 3. Session-level token totals hide where the gain happened
+
+This is the measurement mistake I made.
+
+I was looking for a dramatic end-of-session number. But a session total mixes together very different costs:
+
+- compressed exploration
+- raw target-file reads
+- retries
+- edits
+- tool chatter
+- model reasoning
+
+Even if Composto made the exploration phase cheaper, that improvement can disappear inside the full session total once the agent spends time editing raw files.
+
+That does not mean there was no value. It means I measured the wrong layer.
+
+### 4. Cursor's default behavior is already not terrible
+
+This is also important to say out loud.
+
+If the baseline were extremely wasteful, a lightweight structural tool would look amazing in every demo. But Cursor is not useless by default. It already has its own search and file selection behavior.
+
+So the real standard is not:
+
+> Can Composto beat an obviously bad baseline?
+
+It is:
+
+> Can Composto help the agent navigate large codebases more intentionally, with fewer unnecessary raw reads?
+
+That is a harder and more honest bar.
+
+## What I think Composto is good for in Cursor
+
+The live demo also helped me tighten the product story.
+
+I do **not** think the strongest current story in Cursor is:
+
+> Install this and every task will suddenly use far fewer tokens.
+
+That is too broad, and right now it is not consistently true.
+
+The stronger story is this:
+
+> Use Composto in Cursor as a navigation and planning layer.
+
+That means:
+
+- use structural context to map the repo
+- identify likely relevant files faster
+- keep surrounding context compressed
+- open raw source only when the target file is known
+
+This is a narrower claim, but it is a better product claim because I can defend it.
+
+## The right mental model
+
+Right now I think the healthiest way to use Composto in Cursor is:
+
+- **Composto for discovery**
+- **raw source for execution**
+
+Or even more simply:
+
+- planner and navigator first
+- exact code reader second
+
+That is why I no longer think the main success metric in Cursor should be only total tokens.
+
+The more useful questions are:
+
+- Did the agent find the right files faster?
+- Did it avoid opening unrelated files?
+- Did it get broad architectural context more cheaply?
+- Did it reduce blind exploration in a large repo?
+
+If the answer to those is yes, then the product is doing something real even if the session total is less dramatic than a benchmark chart.
+
+## What I would show in a better demo
+
+If I ran the demo again, I would change the format.
+
+I would not try to prove everything with one single session-wide token number. I would break the demo into phases.
+
+### Phase 1: exploration
+
+Start with a task where the target file is unknown.
+
+For example:
+
+> Find where the context packing budget is decided and which files influence it.
+
+This is where structural context should shine.
+
+### Phase 2: narrowing
+
+Show that the agent can identify a smaller set of likely files before opening them raw.
+
+That is a better demonstration than saying “look, total tokens went down by 80%,” because it matches the real user workflow.
+
+### Phase 3: exact work
+
+Then allow raw reads on the target file and be explicit about why that is correct.
+
+This matters because the honest story is not “never read source.” The honest story is “do not read raw source too early, too broadly, or too often.”
+
+## What this changed in the way I describe the product
+
+This failed demo was useful because it removed some vagueness.
+
+Before, I was still half-tempted to describe Composto as a general token reduction layer for coding agents.
+
+Now I think that framing is too loose.
+
+The better framing is:
+
+> Composto gives coding agents a structural map of a repo so they can explore more intentionally and reserve raw source for the files that truly need it.
+
+That is what the product does well today.
+
+The larger “huge automatic token savings everywhere” story is much more believable in environments where I control the read path more aggressively, especially hook-based ones.
+
+## The practical takeaway
+
+If you tried Composto in Cursor and did not see a huge token delta in a live coding session, I do not think that is a sign that the idea failed.
+
+I think it means one of three things:
+
+1. the task was dominated by exact raw-source work rather than exploration
+2. Cursor preferred its built-in reads more often than Composto tools
+3. the measurement was too coarse to isolate where Composto actually helped
+
+That is a product lesson, not an excuse.
+
+It tells me where the integration is still soft, how the tool should be used, and how I should talk about it without overselling.
+
+## Where I stand now
+
+I still believe the core idea is right.
+
+Large repos do not need to be fed to coding agents as raw text all the time. There is real value in giving the model a structural map first.
+
+But I also think the Cursor story needs to be told with precision:
+
+- not “magic token collapse”
+- not “replace source code entirely”
+- not “works the same in every client”
+
+Instead:
+
+- strong for discovery
+- useful for narrowing
+- best when paired with raw source on the final target
+- more convincing as a navigation layer than as a universal token meter win
+
+That is less flashy, but it is more true.
+
+And for an infrastructure product, truth compounds better than a demo that only works on the best day.
