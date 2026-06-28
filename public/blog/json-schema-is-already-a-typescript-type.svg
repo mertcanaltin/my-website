@@ -1,0 +1,12 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g4" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1528"/>
+      <stop offset="1" stop-color="#1E3F7C"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g4)"/>
+  <rect x="780" y="90" width="280" height="440" rx="20" fill="#9CB8FF" fill-opacity="0.16"/>
+  <text x="88" y="210" fill="#EAF1FF" font-size="56" font-family="Atkinson, Arial, sans-serif" font-weight="700">JSON Schema is already</text>
+  <text x="88" y="290" fill="#D5E3FF" font-size="56" font-family="Atkinson, Arial, sans-serif" font-weight="700">a TypeScript type</text>
+</svg>

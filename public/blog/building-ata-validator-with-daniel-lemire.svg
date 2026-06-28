@@ -1,0 +1,13 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A0F1F"/>
+      <stop offset="1" stop-color="#1A4B7A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g1)"/>
+  <circle cx="980" cy="120" r="180" fill="#39D0FF" fill-opacity="0.18"/>
+  <circle cx="240" cy="560" r="220" fill="#7EF29A" fill-opacity="0.14"/>
+  <text x="88" y="255" fill="#EAF4FF" font-size="64" font-family="Atkinson, Arial, sans-serif" font-weight="700">Building ATA Validator</text>
+  <text x="88" y="340" fill="#CFE2F8" font-size="44" font-family="Atkinson, Arial, sans-serif">with Daniel Lemire</text>
+</svg>

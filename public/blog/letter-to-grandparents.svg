@@ -1,0 +1,13 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g5" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2A1A14"/>
+      <stop offset="1" stop-color="#875B3B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g5)"/>
+  <circle cx="190" cy="130" r="120" fill="#FFD8A8" fill-opacity="0.2"/>
+  <circle cx="1030" cy="530" r="140" fill="#FFECC9" fill-opacity="0.16"/>
+  <text x="88" y="265" fill="#FFF4E8" font-size="68" font-family="Atkinson, Arial, sans-serif" font-weight="700">Letter to</text>
+  <text x="88" y="350" fill="#FFE1BF" font-size="68" font-family="Atkinson, Arial, sans-serif" font-weight="700">Grandparents</text>
+</svg>
