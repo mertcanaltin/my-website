@@ -1,15 +1,10 @@
 ---
-import HeaderLink from './HeaderLink.astro';
 import { SITE_TITLE } from '../consts';
 ---
 
 <header>
 	<nav>
 		<a href="/" class="site-name">{SITE_TITLE}</a>
-		<div class="links">
-			<HeaderLink href="/about">About</HeaderLink>
-			<HeaderLink href="/consulting">Consulting</HeaderLink>
-		</div>
 	</nav>
 </header>
 <style>
@@ -20,7 +15,6 @@ import { SITE_TITLE } from '../consts';
 	nav {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
 		height: var(--space-8);
 		max-width: var(--width);
 		margin: 0 auto;
@@ -30,11 +24,5 @@ import { SITE_TITLE } from '../consts';
 	.site-name {
 		font-size: var(--text-base);
 		font-weight: 500;
-	}
-
-	.links {
-		display: flex;
-		gap: var(--space-5);
-		font-size: var(--text-sm);
 	}
 </style>
