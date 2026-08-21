@@ -14,11 +14,10 @@ const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
 </a>
 <style>
 	a {
-		display: inline-block;
-		text-decoration: none;
+		color: var(--fg-2);
 	}
+	a:hover,
 	a.active {
-		font-weight: bolder;
-		text-decoration: underline;
+		color: var(--fg);
 	}
 </style>

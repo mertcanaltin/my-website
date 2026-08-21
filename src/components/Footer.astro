@@ -1,108 +1,61 @@
 ---
-const today = new Date();
+const year = new Date().getFullYear();
 ---
 
 <footer>
-	<div class="footer-inner">
-		<div class="footer-grid">
-			<div class="footer-col">
-				<h4>Getting Started</h4>
-				<ul>
-					<li><a href="/blog">Blog</a></li>
-					<li><a href="/about">About</a></li>
-					<li><a href="/consulting">Consulting</a></li>
-				</ul>
-			</div>
-			<div class="footer-col">
-				<h4>Resources</h4>
-				<ul>
-					<li><a href="/blog">Articles</a></li>
-					<li><a href="/rss.xml">RSS Feed</a></li>
-				</ul>
-			</div>
-			<div class="footer-col">
-				<h4>Community</h4>
-				<ul>
-					<li><a href="https://github.com/mertcanaltin" target="_blank">GitHub</a></li>
-					<li><a href="https://twitter.com/mecaltin" target="_blank">Twitter</a></li>
-				</ul>
-			</div>
-			<div class="footer-col">
-				<h4>Connect</h4>
-				<ul>
-					<li><a href="/contact">Contact</a></li>
-					<li><a href="/newsletter">Newsletter</a></li>
-				</ul>
-			</div>
+	<div class="inner">
+		<div class="links">
+			<a href="https://github.com/mertcanaltin" target="_blank" rel="noopener">GitHub</a>
+			<a href="https://twitter.com/mecaltin" target="_blank" rel="noopener">Twitter</a>
+			<a href="/rss.xml">RSS</a>
+			<a href="/contact">Contact</a>
+			<a href="/newsletter">Newsletter</a>
+			<a href="/press">Press</a>
 		</div>
-		<div class="footer-bottom">
-			<p>&copy; {today.getFullYear()} Mert Can Altin. All rights reserved.</p>
-		</div>
+		<p>&copy; {year} Mert Can Altin</p>
 	</div>
 </footer>
 <style>
 	footer {
-		background: #2c2f30;
-		color: rgba(255, 255, 255, 0.7);
-		padding: 3em 1.5em 2em;
+		border-top: 1px solid var(--border);
 	}
 
-	.footer-inner {
-		max-width: 1200px;
+	.inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+		flex-wrap: wrap;
+		max-width: var(--width);
 		margin: 0 auto;
+		padding: var(--space-5) var(--gutter);
+		font-size: var(--text-sm);
+		color: var(--fg-2);
 	}
 
-	.footer-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 2em;
-		padding-bottom: 2em;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	.links {
+		display: flex;
+		gap: var(--space-4);
+		flex-wrap: wrap;
 	}
 
-	.footer-col h4 {
-		font-size: 0.75em;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: rgba(255, 255, 255, 0.5);
-		margin: 0 0 1em;
+	.inner a {
+		color: var(--fg-2);
 	}
 
-	.footer-col ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
+	.inner a:hover {
+		color: var(--fg);
 	}
 
-	.footer-col li {
-		margin-bottom: 0.5em;
+	.inner p {
+		font-size: var(--text-xs);
+		color: var(--fg-muted);
 	}
 
-	.footer-col a {
-		color: rgba(255, 255, 255, 0.7);
-		text-decoration: none;
-		font-size: 0.8em;
-	}
-
-	.footer-col a:hover {
-		color: white;
-	}
-
-	.footer-bottom {
-		padding-top: 1.5em;
-		text-align: center;
-	}
-
-	.footer-bottom p {
-		font-size: 0.72em;
-		color: rgba(255, 255, 255, 0.4);
-		margin: 0;
-	}
-
-	@media (max-width: 768px) {
-		.footer-grid {
-			grid-template-columns: repeat(2, 1fr);
+	@media (max-width: 480px) {
+		.inner {
+			flex-direction: column;
+			align-items: flex-start;
 		}
 	}
 </style>
