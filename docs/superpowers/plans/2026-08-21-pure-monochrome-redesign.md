@@ -1050,7 +1050,7 @@ P=dist/blog/why-cursor-didnt-show-token-savings/index.html
 grep -q 'cf-post-tag\|cf-related-card' $P && echo 'FAIL: old post markup remains' || echo 'OK: post rebuilt'
 grep -q 'class="prose"' $P && echo 'OK: prose applied' || echo 'FAIL: prose missing'
 grep -q 'More posts' $P && echo 'OK: more posts' || echo 'FAIL: more posts missing'
-grep -q '<img src="/cursor-live-token-gap.png"' $P && echo 'OK: hero kept' || echo 'FAIL: hero dropped'
+grep -q '<img src="/blog/why-cursor-didnt-show-token-savings.svg"[^>]*class="hero"' $P && echo 'OK: hero kept' || echo 'FAIL: hero dropped'
 ```
 
 All four must print `OK:`.
