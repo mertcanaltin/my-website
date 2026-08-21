@@ -742,16 +742,15 @@ interface Props {
 
 const { posts, groupByYear = false } = Astro.props;
 
-const groups = groupByYear
-	? [...new Map(
-			posts.map((p) => [p.data.pubDate.getFullYear(), null as unknown]),
-		).keys()]
-			.sort((a, b) => b - a)
-			.map((year) => ({
-				year,
-				posts: posts.filter((p) => p.data.pubDate.getFullYear() === year),
-			}))
-	: [{ year: null, posts }];
+const groups: { year: number | null; posts: CollectionEntry<'blog'>[] }[] =
+	groupByYear
+		? [...new Set(posts.map((p) => p.data.pubDate.getFullYear()))]
+				.sort((a, b) => b - a)
+				.map((year) => ({
+					year,
+					posts: posts.filter((p) => p.data.pubDate.getFullYear() === year),
+				}))
+		: [{ year: null, posts }];
 ---
 
 <div class="row-list">
@@ -1161,6 +1160,20 @@ import Page from '../layouts/Page.astro';
 
 	.roles :global(.row-key) {
 		color: var(--fg);
+	}
+
+	/* `.roles .row` (0,2,0) outranks global.css's `@media .row` (0,1,0), so the
+	   200px column would survive onto a 375px screen. Stack the rows instead. */
+	@media (max-width: 480px) {
+		.roles :global(.row) {
+			grid-template-columns: 1fr;
+			gap: 0;
+		}
+
+		.roles :global(.row-value) {
+			color: var(--fg-2);
+			font-size: var(--text-sm);
+		}
 	}
 
 	.connect {
