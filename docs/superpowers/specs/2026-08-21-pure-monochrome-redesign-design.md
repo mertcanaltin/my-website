@@ -91,7 +91,8 @@ any tabular figures use `font-variant-numeric: tabular-nums`.
 Vertical rhythm draws only from the spacing scale; no intermediate values.
 Grid column widths (the post-list date column, the About role column) are
 sized to their content and are the one exception.
-Transitions are limited to `color` and `border-color` at 150ms. No
+Transitions are limited to `color`, `background-color` and `border-color` at
+150ms. No
 transforms, no animations, no shadows. Focus is `outline: 2px solid #000`
 with `outline-offset: 2px`.
 
