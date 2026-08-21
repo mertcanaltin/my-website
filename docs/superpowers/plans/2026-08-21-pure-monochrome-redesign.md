@@ -20,7 +20,7 @@ These apply to every task. Copied verbatim from the spec.
 - **Vertical rhythm draws only from the spacing scale** (4, 8, 12, 16, 24, 32, 48, 64, 96). Grid column widths sized to their content are the one exception.
 - **Headings** are `font-weight: 600`, `letter-spacing: -0.02em`, tightening to `-0.03em` at `--text-3xl`.
 - **Focus** is `outline: 2px solid #000` with `outline-offset: 2px`. Never remove focus outlines.
-- **Copy is preserved verbatim.** Rewriting a page means changing its presentation, never its words. Where a task rewrites `about.astro` or `consulting.astro`, every sentence from the file at `HEAD` must survive into the new markup.
+- **Copy is preserved verbatim** in any task that *rewrites* a page: changing presentation, never words. (Tasks 6 and 7 originally rewrote `about.astro` and `consulting.astro` under this rule; both pages are now deleted outright instead, so the rule no longer binds any remaining task.)
 - **Per-page scoped CSS budget:** under ~80 lines across all page files combined. A rule that does not fit belongs in a token or in `global.css`.
 
 ## Verification harness
@@ -54,8 +54,9 @@ Both must print their `OK:` line. Three-digit hex (`#fff`) and `rgb()` slip
 past the first grep, so the plan never writes them; if a task introduces one,
 widen the pattern rather than allowing the exception.
 
-Note: run the colour gate only after Task 1 has removed the old stylesheets.
-Before that it will legitimately fail on the existing design.
+Note: the colour gate cannot pass until Task 6 deletes `about.astro` and
+`consulting.astro`, which carry the last of the old design's scoped CSS.
+Before that it will fail legitimately, so only Task 6 onward runs it.
 
 ---
 
@@ -1075,117 +1076,73 @@ git commit -m "design: rebuild post layout on the shared shell"
 
 ---
 
-### Task 6: About page
+### Task 6: Delete About and Consulting, strip the header nav
+
+Replaces the original Tasks 6 and 7, which rewrote these two pages. The user
+decided mid-execution to remove them entirely instead. **There is no Task 7** —
+the numbering gap is deliberate, so the ledger entries and briefs already
+written for Tasks 8 and 9 keep their numbers.
+
+Deleting both pages also removes the last of the old Cloudflare-derived
+scoped CSS, so the system-conformance gate comes online here rather than in
+the old Task 7.
 
 **Files:**
-- Modify: `src/pages/about.astro` (454 lines → ~90)
+- Delete: `src/pages/about.astro`
+- Delete: `src/pages/consulting.astro`
+- Delete: `src/components/HeaderLink.astro`
+- Modify: `src/components/Header.astro`
 
 **Interfaces:**
-- Consumes: `Page.astro` (Task 2), `.row`/`.row-key`/`.row-value`/`.lead`/
-  `.button` (Task 1).
-- Produces: nothing later tasks depend on.
+- Consumes: `SITE_TITLE` from `src/consts.ts`; tokens from Task 1.
+- Produces: nothing later tasks depend on. Task 9's route assertions are
+  already updated to expect these pages gone.
 
-**Copy constraint:** open `src/pages/about.astro` at `HEAD` first and list
-every sentence, role, organisation name and link it contains. All of them
-must appear in the rewrite. What leaves is presentation only: `.about-glow`,
-`.about-ring`, `.about-gradient`, `.about-badge`, the `role-icon` SVGs, and
-the card grid.
+**Why `HeaderLink.astro` goes too:** with no nav items left, nothing renders
+it. Its only purpose was marking the active page among About and Consulting.
 
-- [ ] **Step 1: Rewrite `src/pages/about.astro`**
+- [ ] **Step 1: Delete the two pages and the now-unused nav link component**
 
-Structure to follow — fill the copy from the existing file, do not invent or
-summarise it:
+```bash
+git rm src/pages/about.astro src/pages/consulting.astro src/components/HeaderLink.astro
+```
+
+- [ ] **Step 2: Replace `src/components/Header.astro` entirely**
+
+The header keeps the site name and the 1px rule beneath it, nothing else.
 
 ```astro
 ---
-import Page from '../layouts/Page.astro';
+import { SITE_TITLE } from '../consts';
 ---
 
-<Page
-	title="About — Mert Can Altin"
-	description="Node.js core contributor & performance team member, Express.js member, OpenJS Foundation CPC member, and full stack engineer."
->
-	<img src="/github-image.png" alt="Mert Can Altin" class="photo" />
-	<h1>About</h1>
-	<p class="lead"><!-- the existing .about-intro sentence, verbatim --></p>
-
-	<section>
-		<h2>Memberships &amp; Roles</h2>
-		<div class="row-list roles">
-			<div class="row">
-				<span class="row-key"><a href="https://github.com/openjs-foundation" target="_blank" rel="noopener">OpenJS Foundation</a></span>
-				<span class="row-value">CPC Member</span>
-			</div>
-			<div class="row">
-				<span class="row-key"><a href="https://github.com/nodejs/node" target="_blank" rel="noopener">Node.js</a></span>
-				<span class="row-value">Core Contributor</span>
-			</div>
-			<div class="row">
-				<span class="row-key"><a href="https://github.com/nodejs/performance" target="_blank" rel="noopener">Node.js Performance</a></span>
-				<span class="row-value">Team Member</span>
-			</div>
-			<!-- continue for every remaining .role-card in the file at HEAD,
-			     in its original order, keeping each org link and role title -->
-		</div>
-	</section>
-
-	<section>
-		<h2>Connect</h2>
-		<p class="connect"><!-- existing links, inline, separated by spacing --></p>
-	</section>
-
-	<section>
-		<h2><!-- existing .about-cta-heading text, as one sentence --></h2>
-		<a href="/contact" class="button">Get in touch</a>
-	</section>
-</Page>
-
+<header>
+	<nav>
+		<a href="/" class="site-name">{SITE_TITLE}</a>
+	</nav>
+</header>
 <style>
-	.photo {
-		width: var(--space-9);
-		height: var(--space-9);
-		object-fit: cover;
-		border-radius: var(--radius);
-		margin-bottom: var(--space-5);
+	header {
+		border-bottom: 1px solid var(--border);
 	}
 
-	section {
-		margin-top: var(--space-8);
-	}
-
-	/* Organisation names are longer than dates, so this row needs a wider key. */
-	.roles :global(.row) {
-		grid-template-columns: 200px 1fr;
-	}
-
-	.roles :global(.row-key) {
-		color: var(--fg);
-	}
-
-	/* `.roles .row` (0,2,0) outranks global.css's `@media .row` (0,1,0), so the
-	   200px column would survive onto a 375px screen. Stack the rows instead. */
-	@media (max-width: 480px) {
-		.roles :global(.row) {
-			grid-template-columns: 1fr;
-			gap: 0;
-		}
-
-		.roles :global(.row-value) {
-			color: var(--fg-2);
-			font-size: var(--text-sm);
-		}
-	}
-
-	.connect {
+	nav {
 		display: flex;
-		gap: var(--space-4);
-		flex-wrap: wrap;
-		color: var(--fg-2);
+		align-items: center;
+		height: var(--space-8);
+		max-width: var(--width);
+		margin: 0 auto;
+		padding: 0 var(--gutter);
+	}
+
+	.site-name {
+		font-size: var(--text-base);
+		font-weight: 500;
 	}
 </style>
 ```
 
-- [ ] **Step 2: Build and verify no copy was lost**
+- [ ] **Step 3: Build and verify both pages and every reference to them are gone**
 
 ```bash
 yarn build
@@ -1194,164 +1151,16 @@ yarn build
 Expected: exit 0.
 
 ```bash
-A=dist/about/index.html
-grep -q 'about-glow\|about-ring\|about-gradient' $A && echo 'FAIL: decoration remains' || echo 'OK: decoration gone'
-for s in "OpenJS Foundation" "Node.js" "Express" "CPC Member" "Core Contributor"; do
-  grep -q "$s" $A && echo "OK: $s" || echo "FAIL missing: $s"
-done
+test -d dist/about && echo 'FAIL: /about still built' || echo 'OK: /about gone'
+test -d dist/consulting && echo 'FAIL: /consulting still built' || echo 'OK: /consulting gone'
+grep -rq 'HeaderLink' src/ && echo 'FAIL: HeaderLink still referenced' || echo 'OK: HeaderLink gone'
+grep -rqE 'href="/about"|href="/consulting"' src/ dist/ && echo 'FAIL: dangling link' || echo 'OK: no dangling links'
+grep -q '<header' dist/index.html && echo 'OK: header still renders' || echo 'FAIL: header lost'
 ```
 
-Every line must print `OK:`. Then diff the visible text against the old page
-to be certain nothing else was dropped:
+All five must print `OK:`.
 
-```bash
-git show HEAD~1:src/pages/about.astro | grep -oE '>[^<>]{25,}<' | sed 's/[><]//g' | sort > /tmp/about-old.txt
-grep -oE '>[^<>]{25,}<' $A | sed 's/[><]//g' | sort > /tmp/about-new.txt
-comm -23 /tmp/about-old.txt /tmp/about-new.txt
-```
-
-Expected: no output, or only strings that were deliberately merged. Any
-dropped sentence must be restored.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add src/pages/about.astro
-git commit -m "design: rebuild About without decoration, copy preserved"
-```
-
----
-
-### Task 7: Consulting page
-
-**Files:**
-- Modify: `src/pages/consulting.astro` (724 lines → ~150)
-
-**Interfaces:**
-- Consumes: `Page.astro` (Task 2), `.lead` and `.button` (Task 1).
-- Produces: nothing later tasks depend on.
-
-**Copy constraint:** this is a sales page and its wording is the asset. Every
-heading, service description, result, and "costly mistake" from the file at
-`HEAD` must survive. What leaves: `.hero-glow`, `.hero-glow-2`,
-`.gradient-text`, `.badge-dot`, `.stats-bar` markup, `.service-icon` SVGs and
-all card grids.
-
-- [ ] **Step 1: Rewrite `src/pages/consulting.astro`**
-
-Structure to follow:
-
-```astro
----
-import Page from '../layouts/Page.astro';
-
-const CTA = 'https://flowflare-website.altinmert.workers.dev/#contact';
----
-
-<Page
-	title="Consulting - Mert Can Altin"
-	description="Slow Node.js, high cloud bills — we fix both. Performance audits, architecture reviews, and cost optimization for engineering teams."
->
-	<h1>Consulting</h1>
-	<p class="lead">Slow Node.js. High cloud bills. We fix both.</p>
-	<p class="intro"><!-- existing .hero-desc sentence, verbatim --></p>
-
-	<p class="stats">
-		~60% server cost reduction &middot; 4x throughput improvement &middot;
-		F500 enterprise clients
-	</p>
-
-	<a href={CTA} target="_blank" rel="noopener" class="button">Discuss your performance</a>
-
-	<section>
-		<h2>How I Help</h2>
-		<p class="section-desc"><!-- existing .section-desc, verbatim --></p>
-		<h3>Performance Audit</h3>
-		<p>
-			Comprehensive application profiling to identify what's actually costing
-			you money. Bottleneck analysis, resource waste detection, and a clear
-			report with ROI-focused recommendations.
-		</p>
-		<!-- then Node.js Optimization, Architecture Review and Cost Optimization
-		     the same way, each h3 + p, copy taken verbatim from the .card-title
-		     and .card-desc of the matching .service-card at HEAD -->
-	</section>
-
-	<section>
-		<h2>Real Results</h2>
-		<!-- existing result entries as h3 + p pairs -->
-	</section>
-
-	<section>
-		<h2>Costly Mistakes I See Every Week</h2>
-		<!-- existing four mistakes as h3 + p pairs -->
-	</section>
-
-	<section>
-		<h2><!-- existing .cta-title text as one sentence --></h2>
-		<a href={CTA} target="_blank" rel="noopener" class="button">Discuss your performance</a>
-	</section>
-</Page>
-
-<style>
-	.intro {
-		margin-top: var(--space-4);
-	}
-
-	.stats {
-		font-size: var(--text-sm);
-		color: var(--fg-2);
-		margin: var(--space-5) 0;
-	}
-
-	section {
-		margin-top: var(--space-8);
-	}
-
-	.section-desc {
-		color: var(--fg-2);
-		margin-top: var(--space-3);
-	}
-
-	section h3 {
-		margin-top: var(--space-6);
-	}
-</style>
-```
-
-The old page had two CTAs, `Discuss Your Performance` and `Schedule a Call`,
-pointing at the same URL. They collapse into the single button above; this is
-the one deliberate copy removal in the plan.
-
-- [ ] **Step 2: Build and verify no copy was lost**
-
-```bash
-yarn build
-```
-
-Expected: exit 0.
-
-```bash
-C=dist/consulting/index.html
-grep -q 'hero-glow\|gradient-text\|stats-bar\|service-icon' $C && echo 'FAIL: decoration remains' || echo 'OK: decoration gone'
-for s in "Performance Audit" "Node.js Optimization" "Architecture Review" "Cost Optimization" \
-         "Scaling Before Profiling" "Blocking the Event Loop" \
-         "Buffering Everything in Memory" "Premature Microservices" "Real Results"; do
-  grep -q "$s" $C && echo "OK: $s" || echo "FAIL missing: $s"
-done
-```
-
-Every line must print `OK:`.
-
-```bash
-git show HEAD~1:src/pages/consulting.astro | grep -oE '>[^<>]{25,}<' | sed 's/[><]//g' | sort > /tmp/cons-old.txt
-grep -oE '>[^<>]{25,}<' $C | sed 's/[><]//g' | sort > /tmp/cons-new.txt
-comm -23 /tmp/cons-old.txt /tmp/cons-new.txt
-```
-
-Expected: only `Schedule a Call`. Anything else must be restored.
-
-- [ ] **Step 3: Run the system-conformance gate for the first time**
+- [ ] **Step 4: Run the system-conformance gate for the first time**
 
 Every page-scoped stylesheet from the old design is gone as of this task, so
 the colour and depth gates from the Verification harness must now pass:
@@ -1366,16 +1175,21 @@ grep -oE 'box-shadow|linear-gradient|radial-gradient' dist/_astro/*.css \
 ```
 
 Both must print `OK:`. A failure here names the exact offending value — trace
-it to its page and replace it with a token.
+it to its source and replace it with a token.
 
-- [ ] **Step 4: Commit**
+Note: `dist/_astro/*.css` may not exist if Astro inlined every stylesheet. If
+the glob matches nothing, run the same two greps over `dist/**/*.html`
+instead and say so in your report.
+
+- [ ] **Step 5: Commit**
 
 ```bash
-git add src/pages/consulting.astro
-git commit -m "design: rebuild Consulting as prose, copy preserved"
+git add -A
+git commit -m "design: remove About and Consulting, reduce header to the site name"
 ```
 
 ---
+
 
 ### Task 8: Wire the MDX pages into the layout
 
@@ -1494,8 +1308,8 @@ token — move it and rebuild.
 - [ ] **Step 4: Verify every route still exists and feeds still work**
 
 ```bash
-for f in index.html about/index.html consulting/index.html contact/index.html \
-         newsletter/index.html press/index.html rss.xml sitemap-index.xml; do
+for f in index.html contact/index.html newsletter/index.html \
+         press/index.html rss.xml sitemap-index.xml; do
   test -f dist/$f && echo "OK: $f" || echo "FAIL: $f"
 done
 test -d dist/blog/why-cursor-didnt-show-token-savings && echo 'OK: post route' || echo 'FAIL: post route'
@@ -1510,6 +1324,9 @@ Every line must print `OK:`, and the RSS item count must match the post count
 ```bash
 grep -rq 'atkinson\|cf-card\|cf-tag\|cf-featured\|about-glow\|hero-glow' dist/ \
   && echo 'FAIL: dead reference' || echo 'OK: clean'
+test -e src/pages/about.astro && echo 'FAIL: about.astro remains' || echo 'OK'
+test -e src/pages/consulting.astro && echo 'FAIL: consulting.astro remains' || echo 'OK'
+test -e src/components/HeaderLink.astro && echo 'FAIL: HeaderLink remains' || echo 'OK'
 test -f src/layouts/HomePage.astro && echo 'FAIL: HomePage.astro remains' || echo 'OK'
 test -f src/content/config.ts && echo 'FAIL: dead config remains' || echo 'OK'
 test -f src/pages/blog/index.astro && echo 'FAIL: duplicate listing remains' || echo 'OK'
@@ -1523,17 +1340,16 @@ All must print `OK:`.
 yarn dev --port 4321
 ```
 
-Walk eight routes — `/`, one post, `/about`, `/consulting`, `/contact`,
-`/newsletter`, `/press`, `/rss.xml` — at 1440, 768 and 375px. Look
-specifically at:
+Walk six routes — `/`, one post, `/contact`, `/newsletter`, `/press`,
+`/rss.xml` — at 1440, 768 and 375px. Look specifically at:
 
 - Hero images: they were chosen for a 1200px layout and now render
   full-width in a 640px column. Flag any that read badly.
 - Code blocks in `comprehensive-guide-to-nodejs-addons`: if monochrome
   highlighting is too flat to scan, the fallback is one line in
   `astro.config.mjs` — `theme: "github-light"` instead of `"css-variables"`.
-- The 375px breakpoint on the post-list rows, the footer, and the About role
-  rows, which are the three places that reflow.
+- The 375px breakpoint on the post-list rows and the footer, which are the
+  two places that reflow.
 
 - [ ] **Step 7: Commit any fixes**
 

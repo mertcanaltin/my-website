@@ -27,7 +27,7 @@ choice, because it resolves future questions the spec does not cover.
 | Font | Geist Sans + Geist Mono via Google Fonts | The typeface carries most of the "Vercel" impression. Third-party request accepted knowingly. |
 | Structural depth | Radical | Cards, hero images in lists, tag badges, stats bars and the multi-column footer are removed, not restyled. |
 | Hero images | Post page only | Kept where the work shows, dropped from listings. Still used as `og:image`. |
-| Consulting page | Same treatment | The site speaks with one voice; a differently-styled sales page would break it. |
+| Consulting page | ~~Same treatment~~ → **deleted** | Superseded during execution: the user chose to remove About and Consulting entirely rather than restyle them. See "About and Consulting: deleted". |
 | `/blog` | Redirect to `/` | Ten posts do not justify two identical listing pages. |
 
 **Governing rule:** depth is expressed through 1px borders and whitespace,
@@ -108,12 +108,12 @@ with `outline-offset: 2px`.
 | `src/components/Header.astro` | 169 → ~45 lines, single row |
 | `src/components/Footer.astro` | 108 → ~35 lines, single row |
 | `src/components/FormattedDate.astro` | Gains `variant="short"` (`Aug 12`) alongside the default long form (`Aug 12, 2026`) |
-| `src/components/HeaderLink.astro` | Kept; active state becomes colour-only |
 | `src/components/BaseHead.astro` | Atkinson preloads replaced by Geist links |
 | `src/pages/index.astro` | Rewritten — intro + `PostList` |
 | `src/pages/blog/index.astro` | Deleted, replaced by a redirect |
-| `src/pages/about.astro` | Rewritten, all copy preserved |
-| `src/pages/consulting.astro` | Rewritten, all copy preserved |
+| `src/pages/about.astro` | **Deleted** |
+| `src/pages/consulting.astro` | **Deleted** |
+| `src/components/HeaderLink.astro` | **Deleted** — no nav left to render |
 | `src/pages/{contact,newsletter,press}.mdx` | Gain `layout: ../layouts/Page.astro` frontmatter |
 | `src/content/config.ts` | Deleted — dead legacy config |
 | `public/fonts/atkinson-*.woff` | Deleted |
@@ -154,11 +154,11 @@ when it is a string, and fall back to the default otherwise.
 ### Header
 
 Single row, 64px, 1px bottom border. Site name on the left at
-`--text-base`/weight 500, linking to `/`. Navigation on the right:
-`About · Consulting` at `--text-sm` in `--fg-2`. The active page is marked by
-colour alone (`--fg`) — no underline, no border. There is no `Blog` nav item
-because the homepage is the blog. Social icons move to the footer; the
-current two-row header becomes one row.
+`--text-base`/weight 500, linking to `/`. **No navigation at all** — with
+About and Consulting deleted and the homepage serving as the blog, every nav
+item would either point at a page that no longer exists or duplicate the
+site-name link. Social icons move to the footer; the current two-row header
+becomes one row carrying only the name.
 
 ### Homepage
 
@@ -208,33 +208,26 @@ More posts
 The existing "Related Posts" card grid becomes three rows in the same list
 idiom as the homepage. Tag badges are removed.
 
-### About
+### About and Consulting: deleted
 
-Glow, ring, gradient text and the decorative icon SVGs are removed. The
-photo becomes a 96px square with `--radius`, placed above the intro.
-`Memberships & Roles` drops its card grid for two-column rows reusing the
-post-list grid:
+Superseded mid-execution. These two pages were originally to be rewritten in
+the monochrome idiom, preserving every sentence of their copy. The user
+decided instead to remove them outright, and `src/pages/about.astro` and
+`src/pages/consulting.astro` are deleted.
 
-```
-OpenJS Foundation      CPC Member
-Node.js                Core Contributor
-Node.js Performance    Team Member
-```
+Consequences, all accepted deliberately:
 
-`Connect` becomes an inline link row. The closing CTA becomes one sentence
-and one button. All existing copy is preserved; only its presentation
-changes.
+- The site is now the homepage archive, the post pages, and
+  `contact`/`newsletter`/`press`. Nothing else.
+- The header has no nav (see Header above) and `HeaderLink.astro` is deleted
+  with it, having no remaining caller.
+- `/about` and `/consulting` will 404. They are dropped from the sitemap
+  automatically. No redirects are added: there is no destination that
+  honestly serves those URLs.
+- The Consulting page's calls to action pointed at
+  `flowflare-website.altinmert.workers.dev/#contact`. That path off the site
+  no longer exists; `/contact` is the only remaining contact route.
 
-### Consulting
-
-724 lines to roughly 150. Heading, tagline, intro, then the three statistics
-as one plain line (`~60% server cost reduction · 4x throughput · F500
-clients`), then a single black button. `How I Help`, `Real Results` and
-`Costly Mistakes I See Every Week` keep all their copy but render as heading
-plus paragraph blocks instead of card grids.
-
-The two CTAs (`Discuss Your Performance`, `Schedule a Call`) point at the
-same URL and collapse into one button.
 
 ### Footer
 
@@ -286,9 +279,8 @@ longest post, `github-light` is a one-line fallback.
 The project has no test framework and this spec does not add one.
 
 1. `yarn build` completes clean, then `tsc`.
-2. Dev server visual pass over eight routes — `/`, one post, `/about`,
-   `/consulting`, `/contact`, `/newsletter`, `/press`, `/rss.xml` — at 1440,
-   768 and 375px.
+2. Dev server visual pass over six routes — `/`, one post, `/contact`,
+   `/newsletter`, `/press`, `/rss.xml` — at 1440, 768 and 375px.
 3. `.prose` checked against the longest post,
    `comprehensive-guide-to-nodejs-addons.mdx`.
 4. `dist/` still contains a valid `rss.xml` and `sitemap-index.xml`, and
@@ -296,9 +288,10 @@ The project has no test framework and this spec does not add one.
 
 ## Risks
 
-- `consulting.astro` and `about.astro` are rewritten wholesale. The diff is
-  large by necessity; copy is preserved verbatim, so review should focus on
-  whether anything was dropped.
+- `consulting.astro` and `about.astro` are deleted. Their copy — the service
+  descriptions, the results, the memberships list — survives only in git
+  history. Recovering any of it later means reading `git show` on a commit
+  before the deletion.
 - Geist adds a third-party request and a brief FOUT on first paint.
 - Hero images were chosen for a 1200px layout and will read differently
   full-width in a 640px column.
