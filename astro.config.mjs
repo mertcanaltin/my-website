@@ -14,4 +14,10 @@ export default defineConfig({
       enabled: true,
     },
   }),
+  markdown: {
+    shikiConfig: {
+      theme: "css-variables",
+      wrap: false,
+    },
+  },
 });
