@@ -20,4 +20,7 @@ export default defineConfig({
       wrap: false,
     },
   },
+  redirects: {
+    "/blog": "/",
+  },
 });
