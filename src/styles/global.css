@@ -34,6 +34,7 @@
   --width: 640px;
   --gutter: 24px;
   --radius: 6px;
+  --radius-sm: 4px;
 
   /* Shiki, theme: 'css-variables'. Weight and tone carry emphasis, not hue. */
   --astro-code-foreground: var(--fg);
@@ -240,7 +241,7 @@ img {
 
 .prose ul,
 .prose ol {
-  padding-left: 20px;
+  padding-left: var(--space-5);
   margin-bottom: var(--space-5);
 }
 
@@ -285,8 +286,8 @@ img {
   font-size: 0.875em;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 5px;
+  border-radius: var(--radius-sm);
+  padding: 0.125em 0.35em;
 }
 
 .prose pre {
