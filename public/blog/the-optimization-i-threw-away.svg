@@ -1,0 +1,24 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gtree" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14161F"/>
+      <stop offset="1" stop-color="#3B3560"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#gtree)"/>
+  <g stroke="#A9A2F0" stroke-opacity="0.35" stroke-width="3" fill="none">
+    <path d="M960 150 L860 250 M960 150 L1060 250"/>
+    <path d="M860 250 L800 350 M860 250 L920 350"/>
+    <path d="M1060 250 L1000 350 M1060 250 L1120 350"/>
+    <path d="M800 350 L770 450 M920 350 L950 450"/>
+  </g>
+  <g fill="#C9C3FF" fill-opacity="0.55">
+    <circle cx="960" cy="150" r="11"/>
+    <circle cx="860" cy="250" r="9"/><circle cx="1060" cy="250" r="9"/>
+    <circle cx="800" cy="350" r="8"/><circle cx="920" cy="350" r="8"/>
+    <circle cx="1000" cy="350" r="8"/><circle cx="1120" cy="350" r="8"/>
+    <circle cx="770" cy="450" r="7"/><circle cx="950" cy="450" r="7"/>
+  </g>
+  <text x="88" y="290" fill="#F2F0FF" font-size="66" font-family="Atkinson, Arial, sans-serif" font-weight="700">Fast without</text>
+  <text x="88" y="375" fill="#C9C3FF" font-size="50" font-family="Atkinson, Arial, sans-serif">generating code</text>
+</svg>

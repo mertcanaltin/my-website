@@ -6,6 +6,7 @@ type: Blog
 pubDate: 'Aug 26 2026'
 tag: coding
 status: published
+heroImage: '/blog/the-optimization-i-threw-away.png'
 ---
 
 Earlier this month I got ata's interpreted engine from 3786 ns down to 343 ns, wrote up how, and ended the draft with a note to myself: a closure tree would probably buy another two or three times, but at eight times off generated code the interpreter was no longer the weak point, so I would spend the effort elsewhere.
@@ -34,7 +35,7 @@ Most of that first round was reading the schema too many times.
 
 The old walker read the raw schema object on every visit. About forty property reads per node, on objects whose shapes all differ, so V8 could not specialize any of them. Each schema node now resolves once into a plan with a fixed shape: the type list folded into a bitmask, the format looked up to a function, one boolean per keyword group so whole blocks are skipped without touching the schema. That is Daniel Lemire's technique from the C++ side, applied a layer up. Do not compare strings on the hot path. Turn them into integers before you get there.
 
-That alone took 3786 ns to 873 ns.
+That alone took it from 3786 ns to 873 ns.
 
 Then the allocations. A cycle guard copying an array on every visit, when only a `$ref` can lead back to a schema you are already inside. A fresh annotation object per child, when almost no caller reads it. Two regex replaces on every property name, when property names almost never contain the two characters those regexes look for.
 
@@ -112,15 +113,17 @@ I threw it away. It is not in the library.
 
 I am writing it down because the write-ups I read only contain the things that worked, and that is a misleading picture of how this goes. The idea was sound, the profile pointed straight at it, the implementation was correct, and it made the library slower where it mattered most. The only reason I know that is that I measured after building it instead of shipping on the strength of the profile.
 
-## What the speed work actually found
+## What chasing speed actually found
 
-Three correctness bugs, none of which were about speed.
+Two correctness bugs, neither of them about speed.
 
 `enum` compared object members by their serialized form. `{"b": 2, "a": 1}` was rejected against `enum: [{"a": 1, "b": 2}]`. JSON Schema compares instances by value and key order is not part of the value. All three code generation paths did this, so they agreed with each other and disagreed with the interpreter, which had always compared structurally. The official suite has no reordered-key case for `enum`, and the test that compares the generators against each other could not catch it because all of them were wrong in the same way.
 
 A draft-07 document carrying `$ref` next to `$id` lost the only name the registry could address it by. Draft-07 ignores every keyword sitting beside `$ref`, so normalization drops them and `$id` goes with them. That is the right reading for evaluation. It is the wrong reading for registration. This was making all twenty-three remote-reference cases of the draft-07 suite fail in Bowtie's public compliance report, and I had been looking at that report without understanding why.
 
-And then the fuzzers. There were three fuzz targets sitting in the repository that had never once been run. I built them and two of them crashed within seconds under AddressSanitizer.
+The third one I found by accident, and it is the one that bothers me most.
+
+While I was looking at something else I noticed three fuzz targets sitting in the repository that had never once been run. I built them. Two crashed within seconds under AddressSanitizer.
 
 The engine was reading past the end of the document the caller handed it. simdjson wants padding after a document so its SIMD loads can run off the end, and the code was claiming that padding on buffers it does not own, on the theory that a buffer not ending near a page boundary has readable bytes after it. It does not fault, which is why nobody noticed. But those bytes belong to somebody else, and through the Node binding the read landed in V8's heap. Anyone who fuzzed or sanitized an application built on ata would have seen a heap-buffer-overflow inside simdjson with no way to tell it was deliberate.
 
