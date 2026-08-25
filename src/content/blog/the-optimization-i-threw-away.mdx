@@ -1,0 +1,158 @@
+---
+title: 'Making a Schema Interpreter Fast Without Generating Code'
+description: >-
+  I said I would not build a closure tree because the effort was better spent elsewhere. Then someone benchmarked my validator and found it twenty-three times behind. This is what I built after that, including the optimization I measured and threw away.
+type: Blog
+pubDate: 'Aug 26 2026'
+tag: coding
+status: published
+---
+
+Earlier this month I got ata's interpreted engine from 3786 ns down to 343 ns, wrote up how, and ended the draft with a note to myself: a closure tree would probably buy another two or three times, but at eight times off generated code the interpreter was no longer the weak point, so I would spend the effort elsewhere.
+
+I built it anyway. Somebody made me.
+
+## Why there is an interpreter at all
+
+ata compiles most schemas into specialized JavaScript. It builds a function per schema with `new Function` and that function is as fast as anything you would write by hand.
+
+Except `new Function` is not always available. A Cloudflare Worker refuses it. So does any page under a strict Content-Security-Policy. Node has a switch for the same thing:
+
+```bash
+node --disallow-code-generation-from-strings app.js
+```
+
+Run your validator under that flag some time. A library that reaches its speed by generating source and calling `new Function` throws before it validates anything. That is not a bug on their side, it is the trade they took, but it is worth knowing which side of it you are on before you deploy to an edge runtime.
+
+So ata has a second engine that walks the schema directly, and it has to be correct in exactly the same way. It is also the engine that takes the schemas the code generator declines, which are the awkward ones: cyclic `$ref`, `unevaluatedProperties`, `$dynamicRef`.
+
+Being correct was never the problem. Being slow was. On a six-field object the compiled path took 44 ns and the walker took 3786 ns.
+
+## The first pass
+
+Most of that first round was reading the schema too many times.
+
+The old walker read the raw schema object on every visit. About forty property reads per node, on objects whose shapes all differ, so V8 could not specialize any of them. Each schema node now resolves once into a plan with a fixed shape: the type list folded into a bitmask, the format looked up to a function, one boolean per keyword group so whole blocks are skipped without touching the schema. That is Daniel Lemire's technique from the C++ side, applied a layer up. Do not compare strings on the hot path. Turn them into integers before you get there.
+
+That alone took 3786 ns to 873 ns.
+
+Then the allocations. A cycle guard copying an array on every visit, when only a `$ref` can lead back to a schema you are already inside. A fresh annotation object per child, when almost no caller reads it. Two regex replaces on every property name, when property names almost never contain the two characters those regexes look for.
+
+By the end of it the walker was at 343 ns. Eight times off the generated code instead of eighty-five. Good enough, I decided, and moved on.
+
+## Twenty-three times
+
+Then Jason Desrosiers, who is on the JSON Schema core team, ran ata on his own benchmark. Prebuilt validators, the whole official test suite, only the tests every library passes, reading only `.valid`.
+
+We came out twenty-three times behind `@exodus/schemasafe`.
+
+My first reaction was that his benchmark was unusual. It was not. His benchmark was a gateway check, which is the most common thing anyone does with a validator: hand it a document, ask if it is valid, throw the answer away.
+
+And on that shape ata was doing something stupid. Every rejection built a full error object: a code, the offending value, a documentation link, a suggestion, then sorted the errors into schema declaration order. A benchmark that reads `.valid` and nothing else paid for all of it.
+
+That is not a speed problem. That is an accounting problem. We were charging every caller for something most of them never look at.
+
+Errors are now built when you read them. `validate()` answers the verdict, and `.errors` materializes through a getter on first access. The output is unchanged, byte for byte. A caller that only reads `.valid` no longer pays for error construction at all.
+
+One trap there, because it cost me an afternoon. My first version returned a plain object with a getter:
+
+```js
+return {
+  valid: false,
+  get errors() { /* build them */ }
+}
+```
+
+That is about 200 ns slower per rejection than it looks. An object literal with an accessor creates a closure and calls `DefineAccessorProperty` on every single call. Moving the getter to a class prototype makes construction a plain allocation again.
+
+## The thing I said I would not build
+
+The verdict path still went through the walker, and the walker still decided everything at run time. Which keyword is present, which branch to take, where the base URI is, whether anyone reads this node's annotations. All of that is fixed the moment you have the schema.
+
+So: compile the plans into a tree of closures. Not source, no `new Function`, just plain closure composition, so it still runs where codegen cannot. Each schema node becomes a pair of functions. One collects errors and produces byte-for-byte what the walker produces. One answers the verdict with no path strings, no error objects, and returns on the first failure.
+
+Everything the walker decides per call from the schema path gets decided once, at compile time, because the schema path is static:
+
+The base URI, so `$ref` targets resolve once. The dynamic scope for `$dynamicRef`, kept as the ordered list of resources entered so far. Whether a node's annotations are read by anyone, which is what makes `unevaluatedProperties` compile at all. And whether the schema can recurse: the cycle guard can only fire if the compiled graph has a cycle, which compilation notices, so an acyclic schema drops the guard and the stack entirely.
+
+The guard against this going wrong is a differential test. Every schema the compiler accepts is run through both the compiled tree and the walker, over the whole official suite, and every verdict and every error must be identical. 987 schemas, 3359 cases, byte for byte.
+
+That test earned its keep immediately. I had written a shortcut for `required` that checked `data[key] === undefined` before falling back to `Object.hasOwn`. It is wrong for a property named `toString`, and the differential test found it in the first run.
+
+## The optimization I threw away
+
+Here is the part I actually want to write down.
+
+After the closure tree, the largest single item in the profile was not validation at all. It was the wrapper in `validate()`, the closure that calls the verdict function and builds the result object. Ten percent of total time.
+
+So I measured what that costs at a realistic scale. Thirty route schemas, four fields each, the way a small server looks:
+
+| | validate | isValidObject |
+|---|---|---|
+| accept | 15.5 ns | 11.3 ns |
+| reject | 12.4 ns | 7.8 ns |
+
+Roughly 4 ns of wrapper. On a 12 ns check that is a quarter of the whole thing. Worth removing.
+
+The fix was obvious: have the code generator emit the result object itself, so the wrapper disappears. I built it. Third generated body, alongside the boolean one and the hybrid one.
+
+Then I measured it:
+
+| routes | before | after |
+|---|---|---|
+| 4 | 14.5 ns | 13.1 ns |
+| 30 | 15.5 ns | 13.8 ns |
+| 100 | 21.1 ns | 24.1 ns |
+
+It got better at four and thirty routes and worse at a hundred. Worse on the rejection path at thirty as well, 12.5 ns to 14.4 ns. And at a hundred routes it slowed down `isValidObject`, which it does not touch at all, from 12.7 ns to 18.1 ns.
+
+A third generated function per schema costs something globally once there are enough of them. More code objects, worse instruction cache behaviour, and V8's call site caching gives up sooner.
+
+I threw it away. It is not in the library.
+
+I am writing it down because the write-ups I read only contain the things that worked, and that is a misleading picture of how this goes. The idea was sound, the profile pointed straight at it, the implementation was correct, and it made the library slower where it mattered most. The only reason I know that is that I measured after building it instead of shipping on the strength of the profile.
+
+## What the speed work actually found
+
+Three correctness bugs, none of which were about speed.
+
+`enum` compared object members by their serialized form. `{"b": 2, "a": 1}` was rejected against `enum: [{"a": 1, "b": 2}]`. JSON Schema compares instances by value and key order is not part of the value. All three code generation paths did this, so they agreed with each other and disagreed with the interpreter, which had always compared structurally. The official suite has no reordered-key case for `enum`, and the test that compares the generators against each other could not catch it because all of them were wrong in the same way.
+
+A draft-07 document carrying `$ref` next to `$id` lost the only name the registry could address it by. Draft-07 ignores every keyword sitting beside `$ref`, so normalization drops them and `$id` goes with them. That is the right reading for evaluation. It is the wrong reading for registration. This was making all twenty-three remote-reference cases of the draft-07 suite fail in Bowtie's public compliance report, and I had been looking at that report without understanding why.
+
+And then the fuzzers. There were three fuzz targets sitting in the repository that had never once been run. I built them and two of them crashed within seconds under AddressSanitizer.
+
+The engine was reading past the end of the document the caller handed it. simdjson wants padding after a document so its SIMD loads can run off the end, and the code was claiming that padding on buffers it does not own, on the theory that a buffer not ending near a page boundary has readable bytes after it. It does not fault, which is why nobody noticed. But those bytes belong to somebody else, and through the Node binding the read landed in V8's heap. Anyone who fuzzed or sanitized an application built on ata would have seen a heap-buffer-overflow inside simdjson with no way to tell it was deliberate.
+
+The fix is a memcpy into a padded buffer before parsing. `validateJSON` on a 60 KB document costs 15.2 µs in total afterwards, so whatever the copy adds is inside the noise of the parse it precedes. I should have run those fuzzers the day I wrote them.
+
+## Where it ended up
+
+Suite average per case, prebuilt validators, several runs on the same machine:
+
+| | before | after |
+|---|---|---|
+| draft 2020-12 | 94 ns | 43 ns |
+| draft-07 | 59 ns | 29 ns |
+
+On Jason's benchmark, `validate().valid` went from 778 ns to somewhere between 70 and 100 ns per call on 2020-12. That puts it level with schemasafe there, and schemasafe is still ahead on draft-07 by twenty to twenty-five percent.
+
+One number I want to be careful about. schemasafe runs that benchmark with `includeErrors: false`, where it cannot report anything at all about a failure. With errors turned on I measure it at 128 ns on 2020-12 against ata's 84 ns. That is a deliberate trade on their side and not a complaint from me, but it is the axis I would want labelled if I were reading the chart.
+
+## The part that is worth more than the numbers
+
+The interpreter exists so that ata works where code generation is not allowed. That was the whole point, and for a long time the cost of it was that this engine was slow.
+
+It is not slow now. Which means the sentence I can write is this one, and you can check it in thirty seconds without trusting anything I said above:
+
+```bash
+node --disallow-code-generation-from-strings -e "
+  const { Validator } = require('ata-validator')
+  const v = new Validator({ type: 'object', properties: { id: { type: 'integer' } }, required: ['id'] })
+  console.log(v.validate({ id: 1 }).valid, v.validate({ id: 'x' }).valid)
+"
+```
+
+Try it with whatever you use today.
+
+Thanks to Jason Desrosiers for running the benchmark that started this, and to Daniel Lemire, whose approach to the hot path is still the one I reach for first.
