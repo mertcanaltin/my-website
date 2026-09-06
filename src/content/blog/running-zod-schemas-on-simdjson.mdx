@@ -1,0 +1,133 @@
+---
+title: 'Running zod Schemas on simdjson'
+description: >-
+  How @ata-project/zod keeps zod's answers and moves the verdicts to a compiled engine: 5 ns rejections, lazy ZodErrors, and since 0.2.0 a verdict straight from raw bytes with no JSON.parse.
+type: Blog
+pubDate: 'Sep 06 2026'
+tag: coding
+status: published
+heroImage: "/blog/running-zod-schemas-on-simdjson.png"
+---
+
+zod won runtime validation in TypeScript, and it deserved to. The schema is the
+type, the error report is good, the API is pleasant. What it did not win is the
+hot path. `safeParse` on a nine-field object costs about 526 ns to accept a
+document and 1,419 ns to reject one, and the rejection is the expensive case
+because zod builds its error objects eagerly, whether you read them or not.
+
+I build [ata](https://github.com/ata-core/ata-validator), a JSON Schema engine
+with a compiled path and a simdjson-backed native core.
+[@ata-project/zod](https://github.com/ata-core/ata-zod) is the bridge: your
+schema stays zod, the verdicts come from the engine.
+
+```js
+import { z } from 'zod'
+import { compile } from '@ata-project/zod'
+
+const user = z.object({
+  id: z.number().int().min(1),
+  email: z.string().email(),
+})
+
+const check = compile(user)
+check.isValid(data)        // 21 ns accept, 5 ns reject
+check.safeParse(data)      // zod-shaped result, zod-produced value
+check.isValidBytes(bytes)  // new in 0.2.0: verdict from a Buffer, no JSON.parse
+```
+
+## Same answers, or nothing
+
+zod 4 can emit JSON Schema, but the conversion is lossy in both directions.
+Refinements and transforms are dropped silently, which makes the emitted schema
+looser than zod. Coercion is dropped too, which makes it stricter. Run the
+converted schema blindly and you get a validator that disagrees with your types
+in whichever direction you were unlucky.
+
+So the bridge does not run it blindly. It walks zod's own definition tree and
+classifies the schema before anything executes. An exact conversion runs on ata
+alone. A provably looser one runs in hybrid mode, where ata's rejections are
+final and zod confirms the acceptances. Anything zod-only, coercion, catch,
+preprocess, or a node the classifier has never seen, runs on zod. Unknown
+features land in the slow mode by construction, so a new zod release can make
+the bridge slower, never wrong.
+
+The claim is tested the only way I trust: differentially, against zod itself,
+on 13,030 generated values, and the whole suite runs a second time with code
+generation blocked.
+
+## Rejection is the product
+
+The engine decides first and explains later. `isValid` never builds anything.
+A rejected `safeParse` returns a lazy result whose `ZodError` is constructed on
+first property read, by running zod once at that moment. Most rejections in
+real systems are never read, they are guard clauses and dropped messages, so
+most rejections cost 6.7 ns instead of 1,419.
+
+Accepted values are a different story on purpose. Plain `z.object` strips
+unknown keys, defaults fill, transforms rewrite. The accepted value is zod's to
+make, so `safeParse` hands it to zod and returns exactly what zod returns.
+Parsing valid input runs at zod speed by design; what the bridge owns is the
+verdict and the rejection.
+
+## New in 0.2.0: verdicts from raw bytes
+
+`isValidBytes` takes a `Buffer`, a `Uint8Array` or a JSON string and answers
+without `JSON.parse` and without materializing a JavaScript object. On an
+exact-mode schema with the native engine present, the verdict comes from a
+simdjson walk of the buffer. Bytes that are not valid JSON are a rejection, not
+an exception.
+
+Measured against parse-then-`safeParse` on an array-of-products schema,
+interleaved medians, first element invalid on the rejects:
+
+| payload | zod parse + safeParse | isValidBytes |
+|---|---|---|
+| 0.2 KB, reject | 1.6 us | 0.6 us |
+| 22.7 KB, reject | 81 us | 46 us |
+| 229 KB, reject | 791 us | 482 us |
+
+This is a verdict, not a parse. When you need the value you still parse and
+`safeParse` it, and the modes that need zod do exactly that under the hood, so
+the call is correct everywhere including pure-JS installs. It earns its keep
+where rejection is the common case: gateways, webhook endpoints, queue
+consumers that drop bad messages before doing any further work, and validation
+loops like LLM structured output, where a model's half-right JSON gets rejected
+many times before it gets accepted once.
+
+## The bug I had to fix first
+
+Shipping that API honestly meant fixing something embarrassing. On the buffer
+path, rejecting a document used to cost up to twice as much as accepting it,
+which is backwards, a rejection should be the cheap outcome. The engine's
+bytecode plan returned the same false for "constraint violated" and "hit a
+composition keyword, cannot decide", so every rejection fell through to a
+second full walk of the parsed document.
+
+The fix was to make the plan say which false it meant. That is safe only
+because every check the plan compiles mirrors the tree walker exactly, same
+type mask, same canonical JSON comparison, same UTF-8 length, same RE2 handle,
+and everything else bails out explicitly. After the change, rejection costs the
+same as acceptance at every payload size I measured, and a ratio test in CI
+keeps it that way.
+
+## Numbers, all in one place
+
+Nine-field object schema, zod 4.5.4, interleaved medians on an M-series Mac:
+
+| | zod safeParse | z.compile | @ata-project/zod |
+|---|---|---|---|
+| accept, verdict | 526 ns | 45 ns | 21 ns |
+| reject, verdict | 1,419 ns | 1,429 ns | 5 ns |
+| reject, safeParse | 1,419 ns | 1,429 ns | 6.7 ns |
+| accept, safeParse | 526 ns | 45 ns | 542 ns |
+
+With code generation blocked, the way a strict CSP or a locked-down edge
+runtime blocks it, `z.compile` still runs but at uncompiled-zod speed, 2,250 ns
+per rejection. The bridge falls back to ata's interpreted engine, which passes
+the same official test suite as the compiled one, and keeps rejecting in
+112 ns.
+
+The package is [on npm](https://www.npmjs.com/package/@ata-project/zod), the
+code and the differential suite are [on GitHub](https://github.com/ata-core/ata-zod),
+and the longer docs live [here](https://ata-validator.com/docs/integrations/zod).
+If you measure something different, I want to know.
