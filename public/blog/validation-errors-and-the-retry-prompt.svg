@@ -1,50 +1,63 @@
 <svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="gbg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0E1117"/>
-      <stop offset="1" stop-color="#2A1B24"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="480" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B0D12"/>
+      <stop offset="1" stop-color="#14121A"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="600" y1="150" x2="1140" y2="452" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#171A22"/>
+      <stop offset="1" stop-color="#14161D"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#gbg)"/>
 
-  <!-- a retry loop that never closes: an arc with a gap, drawn faintly behind the guesses -->
-  <g stroke="#E8637A" stroke-opacity="0.16" stroke-width="3" fill="none">
-    <path d="M735 128 A 195 195 0 1 1 700 470"/>
-  </g>
+  <rect width="1200" height="630" fill="url(#bg)"/>
 
-  <!-- the finding, on the left -->
-  <text x="88" y="176" fill="#E8637A" font-size="22" letter-spacing="4"
+  <!-- left column: the measurement -->
+  <rect x="80" y="150" width="54" height="3" fill="#F0546B"/>
+  <text x="80" y="196" fill="#F0546B" font-size="19" letter-spacing="5"
         font-family="Atkinson, Arial, sans-serif" font-weight="700">MEASURED</text>
-  <text x="88" y="300" fill="#F5F2F7" font-size="104"
+
+  <text x="78" y="318" fill="#F7F5F9" font-size="118"
         font-family="Atkinson, Arial, sans-serif" font-weight="700">0 of 30</text>
-  <text x="88" y="368" fill="#E8A2AE" font-size="44"
+
+  <text x="80" y="372" fill="#CFC9D6" font-size="29"
         font-family="Atkinson, Arial, sans-serif">retries recovered</text>
-  <text x="88" y="438" fill="#9A93A6" font-size="26"
-        font-family="Atkinson, Arial, sans-serif">when the error did not name the allowed values</text>
-  <text x="88" y="478" fill="#9A93A6" font-size="26"
-        font-family="Atkinson, Arial, sans-serif">30 of 30 when it did</text>
 
-  <!-- what the model answered instead -->
-  <text x="700" y="196" fill="#6F6A7A" font-size="21" letter-spacing="2"
-        font-family="Atkinson, Arial, sans-serif">THE MODEL GUESSED</text>
+  <text x="80" y="424" fill="#7E7889" font-size="23"
+        font-family="Atkinson, Arial, sans-serif">when the error did not name the allowed values.</text>
+  <text x="80" y="456" fill="#7E7889" font-size="23"
+        font-family="Atkinson, Arial, sans-serif">30 of 30 when it did.</text>
 
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="27">
-    <text x="700" y="262" fill="#C9C3D4">Hamburg office</text>
-    <text x="948" y="262" fill="#6F6A7A">&#8594;</text>
-    <text x="984" y="262" fill="#F5F2F7">"HH"</text>
-    <text x="1144" y="262" fill="#E8637A" font-size="30">&#10007;</text>
+  <!-- right column: the captured output -->
+  <rect x="600" y="150" width="540" height="302" rx="14" fill="url(#panel)" stroke="#262B36" stroke-width="1"/>
 
-    <text x="700" y="322" fill="#C9C3D4">Lyon desk</text>
-    <text x="948" y="322" fill="#6F6A7A">&#8594;</text>
-    <text x="984" y="322" fill="#F5F2F7">"FR"</text>
-    <text x="1144" y="322" fill="#E8637A" font-size="30">&#10007;</text>
+  <text x="632" y="192" fill="#6C6676" font-size="15" letter-spacing="2"
+        font-family="Atkinson, Arial, sans-serif" font-weight="700">THE ERROR IT WAS GIVEN</text>
+  <text x="632" y="224" fill="#9A93A6" font-size="18"
+        font-family="ui-monospace, SFMono-Regular, Menlo, monospace">must be equal to one of the allowed values</text>
 
-    <text x="700" y="382" fill="#C9C3D4">paid in part</text>
-    <text x="948" y="382" fill="#6F6A7A">&#8594;</text>
-    <text x="984" y="382" fill="#F5F2F7">"partial"</text>
-    <text x="1144" y="382" fill="#E8637A" font-size="30">&#10007;</text>
+  <line x1="632" y1="252" x2="1108" y2="252" stroke="#262B36" stroke-width="1"/>
+
+  <text x="632" y="286" fill="#6C6676" font-size="15" letter-spacing="2"
+        font-family="Atkinson, Arial, sans-serif" font-weight="700">WHAT THE MODEL ANSWERED</text>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="24">
+    <text x="632" y="330" fill="#B8B2C4">Hamburg office</text>
+    <text x="866" y="330" fill="#5A5566">&#8594;</text>
+    <text x="906" y="330" fill="#F7F5F9">"HH"</text>
+    <text x="1084" y="330" fill="#F0546B" font-size="25">&#10007;</text>
+
+    <text x="632" y="374" fill="#B8B2C4">Lyon desk</text>
+    <text x="866" y="374" fill="#5A5566">&#8594;</text>
+    <text x="906" y="374" fill="#F7F5F9">"FR"</text>
+    <text x="1084" y="374" fill="#F0546B" font-size="25">&#10007;</text>
+
+    <text x="632" y="418" fill="#B8B2C4">paid in part</text>
+    <text x="866" y="418" fill="#5A5566">&#8594;</text>
+    <text x="906" y="418" fill="#F7F5F9">"partial"</text>
+    <text x="1084" y="418" fill="#F0546B" font-size="25">&#10007;</text>
   </g>
 
-  <text x="700" y="452" fill="#6F6A7A" font-size="23"
-        font-family="Atkinson, Arial, sans-serif">well formed JSON, still invalid, every time</text>
+  <text x="600" y="492" fill="#6C6676" font-size="21"
+        font-family="Atkinson, Arial, sans-serif">well formed JSON, still invalid, every retry</text>
 </svg>
