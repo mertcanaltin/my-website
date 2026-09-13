@@ -1,0 +1,150 @@
+---
+title: "Your validator's error message is part of the retry prompt"
+description: >-
+  Same schema, same failing model output, two error message formats, one retry each. With the conventional JSON Schema error: 0 of 30 recovered. With a message that named the expected values: 30 of 30. The gap only appears under one condition, and finding the condition is most of the point.
+type: Blog
+pubDate: 'Sep 13 2026'
+tag: coding
+status: published
+heroImage: '/blog/validation-errors-and-the-retry-prompt.png'
+---
+
+I ran a small experiment this week. Same schema, same failing model output, two
+error message formats, one retry each.
+
+With the conventional JSON Schema error message: 0 of 30 recovered.
+With a message that named the expected values: 30 of 30.
+
+That gap only appears under one condition, and finding the condition is most of
+the point.
+
+## The loop
+
+If you ask a model for structured output, you validate it, and when validation
+fails you send it back. Everyone caps that at two or three tries because each
+try is another call.
+
+Plenty has been written about the number of retries. Almost nothing about what
+goes in them, which is odd, since the retry is a prompt and the validation error
+is most of it.
+
+## Two conditions
+
+I extract invoices into JSON, validate, and retry once. Paired: the same failing
+first attempt feeds both arms, so the only thing that differs is the wording of
+the errors.
+
+The first condition used constraints a model can work out from context. An id
+that has to match `^INV-[0-9]{6}$`. A date-time where the document has a local
+date. Prices as whole cents. A currency that has to be uppercase. An extra
+property the schema does not allow.
+
+40 documents, all 40 failed the first attempt. Both formats recovered all 40.
+No difference at all.
+
+That is a real result and I am not going to bury it. For most of what a schema
+says, the terse message is enough, because the rule is in the message
+(`must match pattern "^INV-[0-9]{6}$"`) or the model can infer it (`usd` is
+obviously meant to be `USD`, and the extra key is sitting in its own output).
+
+The second condition changed one thing. Two of the fields are internal
+vocabularies:
+
+```
+status:      AWAITING_CLEARANCE | PART_SETTLED | CLOSED_OUT
+region_code: R11 | R24 | R37 | R52
+```
+
+and the document says `Status: paid in part` and `Handled by: Hamburg office`.
+
+Here is what the conventional error shape sends back:
+
+```
+/currency: must be equal to one of the allowed values
+/status: must be equal to one of the allowed values
+/region_code: must be equal to one of the allowed values
+```
+
+Three lines, the same message on each, not one value between them. There is
+nothing in that to act on.
+
+30 documents, all 30 failed the first attempt. The terse arm recovered 0. The
+detailed arm, which says this:
+
+```
+/status: expected one of ["AWAITING_CLEARANCE", "PART_SETTLED", "CLOSED_OUT"], found "paid in part"
+/region_code: expected one of ["R11", "R24", "R37", "R52"], found "Hamburg office"
+```
+
+recovered 30.
+
+## The part I did not expect
+
+The model does not give up. It guesses, and it guesses well:
+
+```
+Hamburg office  ->  "HH"
+Leeds branch    ->  "GB"
+Lyon desk       ->  "FR"
+paid in part    ->  "partial"
+awaiting funds  ->  "unpaid"
+settled/closed  ->  "closed"
+```
+
+Every terse retry came back as valid JSON. Every one of them had exactly two
+errors left, always the same two fields. It fixed the id and the currency, which
+it could infer, and invented plausible codes for the two it could not.
+
+So the failure is not that the retry did not work. It is that the retry produced
+confident, well formed, wrong output, and it will keep doing that forever,
+because the information needed to fix it is never in the loop. Three retries do
+not help. Thirty do not help. You are paying for an answer that cannot arrive.
+
+## What to check in your own stack
+
+The information is usually not gone, it is just not in the string. The
+conventional error object carries it in `params`:
+
+```
+enum                  params={"allowedValues":["USD","EUR","GBP","TRY"]}
+additionalProperties  params={"additionalProperty":"po_number"}
+```
+
+If you build your retry message by joining `error.message`, which is the obvious
+thing to do, you throw that away. That one is easy to fix and worth fixing
+today.
+
+What is not in the error object at all, anywhere, is the value the model
+actually sent. To say "you sent Hamburg office" you have to walk `instancePath`
+back into the document yourself.
+
+Two things follow. Put the allowed values in the message. Put the observed value
+in the message. Then cap the loop at two, the way everyone says.
+
+That is twenty lines in any validator. I added it to mine as `toRetryMessage`
+after running the numbers above, which is the whole reason I know the twenty
+lines are worth writing.
+
+And if a field is an internal vocabulary, check what your validator says about it
+before you trust a retry loop to converge.
+
+## Limits
+
+One model, Haiku 4.5. One schema shape. 40 documents in the first condition and
+30 in the second. No temperature control. The effect in the second condition is
+large enough that I do not think it is noise, but I would not quote it as a
+general number for all models and all schemas without running it again.
+
+One more thing worth knowing: if you paste the full JSON Schema into the
+generation prompt, the model gets these right on the first attempt and the retry
+loop never runs. This is a problem for setups where the schema is enforced by
+decoding or hidden behind a tool definition, which is most agent frameworks.
+
+---
+
+The harness is [retry-message-experiment](https://github.com/mertcanaltin/retry-message-experiment). It ships both fixtures
+and takes an Anthropic key, an OpenAI compatible endpoint, or any command you
+point it at, so running this on your own model is two commands. If you do, send
+me the numbers, including if they come out flat.
+
+The validator is [ata](https://ata-project.dev).
