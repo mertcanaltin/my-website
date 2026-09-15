@@ -128,10 +128,47 @@ lines are worth writing.
 And if a field is an internal vocabulary, check what your validator says about it
 before you trust a retry loop to converge.
 
+## So just put it in the prompt
+
+That last paragraph is the obvious objection, and it deserved its own numbers
+rather than a shrug, so I ran it. Same two fixtures, no retry at all: four
+different prompts, count how many first attempts validate.
+
+The arms are the task with no constraints stated, a lean list of field names, a
+description I wrote carefully by hand, and one generated from the schema.
+
+```
+                    nothing   field list   careful by hand   derived
+inferable fixture     0/30        0/30          30/30         30/30
+opaque fixture        0/30        0/30           0/30         23/30
+```
+
+Three things in that table, and the middle one is the one I care about.
+
+Stating the constraints at all is the whole game. Zero to thirty. Everything in
+the first half of this post is an argument about the remainder, and I want to be
+clear that the remainder is smaller than the thing itself.
+
+A careful person matches the generator wherever prose works. That is the second
+row of the third column, and it is the result I was hoping would come out the
+other way. If generation had won everywhere I would have a better story and a
+worse experiment. It did not, and saying so is what makes the last column
+believable.
+
+Derivation only wins where the values can only be listed. On the opaque fixture
+the hand-written description scored zero, in all thirty documents, on exactly
+the two fields whose values are an internal vocabulary. I described them the way
+a person describes a field: the settlement status, uppercase with underscores. A
+person writes about a field. A generator writes out its values, and here that is
+the difference between zero and twenty-three.
+
+Twenty-three, not thirty, is worth sitting with too. Naming the values does not
+close the gap completely.
+
 ## Limits
 
-One model, Haiku 4.5. One schema shape. 40 documents in the first condition and
-30 in the second. No temperature control. The effect in the second condition is
+One model, Haiku 4.5. One schema shape. 40 documents in the first condition,
+30 in the second, and 30 per arm in the four-arm table. No temperature control. The effect in the second condition is
 large enough that I do not think it is noise, but I would not quote it as a
 general number for all models and all schemas without running it again.
 
