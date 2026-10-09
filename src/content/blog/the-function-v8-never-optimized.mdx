@@ -1,7 +1,7 @@
 ---
-title: 'The Function V8 Never Optimized'
+title: 'I Generated a Function Too Big to Optimize'
 description: >-
-  Someone sent me a bug report with ratios instead of adjectives: on a large schema my validator was 2.5 to 2.8 times slower than the one they were replacing. I spent the first day on the wrong thing. The profile then pointed at a one-line wrapper, and the cause was a limit nobody tells you about.
+  Someone sent me a bug report with ratios instead of adjectives: on a large schema my validator was 2.5 to 2.8 times slower than the one they were replacing. I spent the first day on the wrong thing. The profile then pointed at a one-line wrapper, and the cause was a 3.8 MB function my own generator had written, past a limit nobody tells you about.
 type: Blog
 pubDate: 'Oct 9 2026'
 tag: coding
@@ -61,7 +61,10 @@ module was 4.8 MB, with a single 3.8 MB function in it.
 
 V8 does not optimize a function past a bytecode budget. The default is about
 60 KB of bytecode. A function over the limit is not optimized late or
-optimized badly; it is never considered. `--trace-opt` lists every function
+optimized badly; it is never considered. That is a reasonable rule for an
+engine to have, and the fault here is not V8's. A hand-written 3.8 MB
+function would be a bug too; my generator wrote one on every large schema and
+I never looked at what it had written. `--trace-opt` lists every function
 the optimizer looks at, and this one was not in the list. Raising the limit
 with `--max-optimized-bytecode-size` took the valid-path verdict from 71 µs to
 44 on the spot, which settled the diagnosis. You cannot ship a V8 flag to your

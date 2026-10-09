@@ -18,7 +18,7 @@
     <rect x="930" y="400" width="52" height="40" rx="6"/><rect x="996" y="400" width="52" height="40" rx="6"/><rect x="1062" y="400" width="52" height="40" rx="6"/>
     <rect x="930" y="456" width="52" height="40" rx="6"/><rect x="996" y="456" width="52" height="40" rx="6"/><rect x="1062" y="456" width="52" height="40" rx="6"/>
   </g>
-  <text x="88" y="270" fill="#F2F0FF" font-size="62" font-family="Atkinson, Arial, sans-serif" font-weight="700">The function</text>
-  <text x="88" y="350" fill="#C9C3FF" font-size="50" font-family="Atkinson, Arial, sans-serif">V8 never optimized</text>
+  <text x="88" y="270" fill="#F2F0FF" font-size="62" font-family="Atkinson, Arial, sans-serif" font-weight="700">A function</text>
+  <text x="88" y="350" fill="#C9C3FF" font-size="50" font-family="Atkinson, Arial, sans-serif">too big to optimize</text>
   <text x="88" y="430" fill="#A9A2F0" font-size="28" font-family="Atkinson, Arial, sans-serif">891 µs to 152 µs on a 169 KB schema</text>
 </svg>
