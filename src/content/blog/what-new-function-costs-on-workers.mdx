@@ -1,0 +1,190 @@
+---
+title: 'What new Function Costs You on Workers'
+description: >-
+  Cloudflare Workers refuse to generate code at run time. The Deno team joined Cloudflare this week and Deno Deploy is moving there, so more people are about to meet that refusal. I put the same JSON Schema through five validators on workerd and measured what each one costs: one of them fails in production and not before.
+type: Blog
+pubDate: 'Oct 10 2026'
+tag: coding
+status: published
+heroImage: '/blog/what-new-function-costs-on-workers.png'
+---
+
+The Deno team joined Cloudflare this week, and Deno Deploy is closing over
+the next six months with its customers moving to Workers. A lot of code that
+ran happily on one runtime is about to run on another, and most of it will be
+fine. The part that will not be fine is anything that builds a function from
+a string.
+
+Workers refuse that. `new Function` and `eval` throw an `EvalError` inside a
+Worker, with no flag to turn it off. The best validators for JSON Schema get
+their speed exactly that way: read the schema, write JavaScript for it, call
+`new Function`. I maintain one of them, so I have been living with this rule
+for a while. This is what it costs, measured.
+
+## The setup
+
+One Worker, one four-field schema, five ways of validating a POST body, one
+route each. A sixth route validates nothing and is the floor. The five:
+
+- the default validator, compiled at run time, the way nearly every tutorial
+  shows it
+- the default validator's standalone mode, where you compile at build time and
+  ship the generated source
+- the validator written for Workers, which walks the schema and never
+  generates code
+- ata, compiled at build time with `ata compile`, a module that imports nothing
+- ata's runtime engine, for a schema that only exists once the Worker is
+  running
+
+Everything ran through `wrangler dev`, which runs the same `workerd` that
+Cloudflare runs in production. Versions and the scripts are at the end.
+
+## The one that fails
+
+The first route answered every request with a 500:
+
+```json
+{"error":"EvalError: Code generation from strings disallowed for this context"}
+```
+
+The compile happens on the first request, because that is when the handler
+first touches the schema. Your tests pass, because they run in Node. Your
+`wrangler deploy` succeeds, because nothing has executed yet. The first real
+request is the one that finds out. Through `workerd` that request took 1.8 ms
+against 0.7 for everything else, and the extra millisecond is the cost of
+throwing.
+
+I am not pointing at the library here. Generating code is the right call on a
+server, and it is the reason that library is fast. The runtime made a rule, the
+library predates the rule, and the place they meet is your first production
+request. The point is only that you want to know which side of it you are on
+before you deploy.
+
+## Per request, nothing is visible
+
+With that route out of the way, here is what the other five cost through
+`workerd`, medians over 2100 requests each, interleaved:
+
+| route | valid body | invalid body |
+|---|---|---|
+| nothing validated | 0.74 ms | 0.79 ms |
+| default validator, standalone build | 0.70 ms | 0.79 ms |
+| the Workers-native validator | 0.71 ms | 0.84 ms |
+| ata, compiled | 0.72 ms | 0.81 ms |
+| ata, runtime engine | 0.72 ms | 0.80 ms |
+
+They are the same number. On a schema of four fields, validation is not where
+a request's time goes, and any of the four approaches that work will serve
+you. I want to say that plainly before the next table, because the next table
+has a 54x in it and it would be easy to make that sound like it matters here.
+
+## Per validation, under the same rule
+
+Workers freeze the clock inside a request, so for the per-call figure I ran the
+same code in Node with the same restriction switched on:
+
+```bash
+node --disallow-code-generation-from-strings micro.mjs
+```
+
+| approach | valid document | invalid document |
+|---|---|---|
+| default validator, runtime compile | throws | throws |
+| default validator, standalone build | 54 ns | 15 ns |
+| the Workers-native validator | 1724 ns | 2062 ns |
+| ata, compiled | 32 ns | 109 ns |
+| ata, runtime engine | 138 ns | 230 ns |
+
+Two things to read off that. The compiled rows are the fast rows, whichever
+tool compiled them, and they are within a factor of two of each other. The
+invalid column is not comparable across them: the standalone build stops at
+the first error, ata's module builds the whole list with a code and a message
+for each, and that is where its 109 ns goes.
+
+The other thing is the Workers-native row. Walking a schema generically is
+54 times the compiled cost on this shape, and 12 times ata's runtime engine,
+which also walks the schema and also never generates code. That engine is the
+answer when the schema is not known at build time, a form definition from a
+database, a tool schema a model just sent, and it is the one case here where
+I think the choice is not a toss-up.
+
+## The bundle is where it shows
+
+A Worker isolate starts often, and what it costs to start is mostly how much
+script it has to evaluate. So the number that does change what you feel is
+the bundle, not the nanoseconds. Each row is the same Hono app with that one
+route, bundled the way wrangler bundles it:
+
+| approach | gzipped | validation adds | fresh process to first validation |
+|---|---|---|---|
+| nothing validated | 7.8 KB | | |
+| default validator, runtime compile | 51.7 KB | 43.9 KB | throws |
+| default validator, standalone build | 8.9 KB | 1.1 KB | 7.0 ms |
+| the Workers-native validator | 13.7 KB | 5.9 KB | 7.9 ms |
+| ata, compiled | 10.0 KB | 2.2 KB | 5.2 ms |
+| ata, runtime engine | 57.5 KB | 49.6 KB | 12.9 ms |
+
+The last column is a fresh Node process, again with code generation blocked,
+from the first import to the first answer, median of 11. It is not a Worker
+cold start, which I cannot time from outside, but it moves with the same
+thing.
+
+The two compiled rows are the small ones. The standalone build is smaller
+than ata's module by a kilobyte, and that kilobyte is the error output: codes,
+messages and the full list. If you only need a boolean, the smaller one is
+smaller. The runtime rows carry an engine, 44 to 50 KB of it, and one of the
+two cannot run. If your schema arrives at run time you pay that once per
+isolate, and the question is only which engine.
+
+## What I would do
+
+Compile the schema at build time. Both compiled rows are a couple of
+kilobytes, both run at the floor, and neither can fail in the way the first
+route failed. With ata it is one command and the output imports nothing:
+
+```bash
+ata compile user.schema.json -o src/generated/user.compiled.mjs
+```
+
+```js
+import * as user from './generated/user.compiled.mjs'
+
+app.post('/users', async (c) => {
+  const r = user.validate(await c.req.json())
+  return r.valid ? c.json({ ok: true }) : c.json({ errors: r.errors }, 400)
+})
+```
+
+If the schema is only known once the Worker is running, use an engine that
+does not generate code, and know that the generic one is 1.7 µs a document
+and ata's is 138 ns. At request level you will not see either until the
+schema is large or the traffic is, but one of them is 12 times the other for
+no reason you asked for.
+
+And whichever you pick, run your test suite once with
+`--disallow-code-generation-from-strings`. It is the cheapest production
+incident you will ever not have.
+
+## One trap I fell into this week
+
+"Runs on Workers" and "packaged for Workers" are different claims. The MCP
+provider I maintain has an ahead-of-time mode that serves compiled tool
+schemas, and it worked on `workerd` from the first day. What I had not looked
+at was the bundle: its main entry also exported the runtime provider, which
+requires the engine, so a bundler brought the whole engine along with it.
+Nothing broke. The Worker was 225 KB gzipped where it should have been 97, and
+the 128 KB difference was evaluated on every cold start for nothing. It now
+has an entry of its own that imports nothing but itself. Look at your bundle
+once, with the real bundler, after the thing works.
+
+## The scripts
+
+`ata-validator` 1.48.0, `ajv` 8.20.0 with `ajv-formats` 3.0.1,
+`@cfworker/json-schema` 4.1.1, `hono` 4.13.13, `wrangler` 4.149.0, Node
+25.2.1, on an Apple M4 Pro. The schema is the one from the
+[Hono starter](https://github.com/ata-core/hono-ata-starter): email, name,
+age, newsletter, `additionalProperties: false`. The Worker, the four scripts
+and the raw tables are in
+[benchmark/workers](https://github.com/ata-core/ata-validator/tree/master/benchmark/workers) in the ata repository,
+and there is an [MCP server on Workers](https://github.com/ata-core/mcp-ata-workers-starter)
+built the same way, with the tool schemas compiled.

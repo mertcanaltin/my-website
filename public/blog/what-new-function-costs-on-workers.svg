@@ -1,0 +1,20 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14161F"/>
+      <stop offset="1" stop-color="#3B3560"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g font-family="SF Mono, Menlo, monospace" font-size="26">
+    <text x="760" y="200" fill="#F2F0FF" fill-opacity="0.55">new Function(</text>
+    <text x="760" y="245" fill="#F2F0FF" fill-opacity="0.35">  'return ' + code</text>
+    <text x="760" y="290" fill="#F2F0FF" fill-opacity="0.55">)</text>
+    <text x="760" y="380" fill="#F08AA2">EvalError: Code generation</text>
+    <text x="760" y="420" fill="#F08AA2">from strings disallowed</text>
+    <text x="760" y="460" fill="#F08AA2">for this context</text>
+  </g>
+  <text x="88" y="270" fill="#F2F0FF" font-size="62" font-family="Atkinson, Arial, sans-serif" font-weight="700">What new Function</text>
+  <text x="88" y="350" fill="#C9C3FF" font-size="50" font-family="Atkinson, Arial, sans-serif">costs you on Workers</text>
+  <text x="88" y="430" fill="#A9A2F0" font-size="28" font-family="Atkinson, Arial, sans-serif">five validators, one schema, measured on workerd</text>
+</svg>
