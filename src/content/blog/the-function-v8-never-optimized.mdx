@@ -1,0 +1,161 @@
+---
+title: 'The Function V8 Never Optimized'
+description: >-
+  Someone sent me a bug report with ratios instead of adjectives: on a large schema my validator was 2.5 to 2.8 times slower than the one they were replacing. I spent the first day on the wrong thing. The profile then pointed at a one-line wrapper, and the cause was a limit nobody tells you about.
+type: Blog
+pubDate: 'Oct 9 2026'
+tag: coding
+status: published
+heroImage: '/blog/the-function-v8-never-optimized.png'
+---
+
+Someone who runs ata on a large configuration schema sent me two bug reports in
+a week. Both had numbers in them, not adjectives, which is the kind of report
+that gets fixed. The second one said: on this schema, `validateJSON` on an
+invalid document is 2.5 to 2.8 times slower than the validator we are replacing,
+and your last release changed nothing.
+
+The shape: 140 sections of 20 to 40 properties each, shared definitions behind
+`$ref`, `additionalProperties: false` everywhere. 169 KB of schema. The
+document was 60 KB and had 137 things wrong with it.
+
+Every benchmark I had ever run was on a schema that fit on a screen. The
+official test suite, the comparison harnesses, my own six-field objects. None
+of them could have shown this, and none of them did.
+
+## The day I spent on the wrong thing
+
+`validateJSON` takes text, so my first guess was the text. ata scans JSON
+before parsing it, to refuse a document that is obviously wrong without
+building an object, and I assumed the scanner was where the time went.
+
+I tried a character class table instead of comparisons. I reordered the
+branches. I replaced the switch with a hash dispatch. I tried `indexOf` for
+string values. Every variant was within 3% of the one before it, and two were
+worse. The scanner was already at the floor V8 gives you for that kind of code.
+
+One real thing came out of the day, for a different case: a scan that hits a
+failed member can stop early when that key cannot appear again, which took a
+69 KB document that fails near the top from 112 µs to 26. It did not move the
+reported number at all.
+
+Daniel Lemire's first rule is to profile before you guess. I know the rule.
+I still spent a day guessing, because the guess was plausible and the
+profiler felt like a detour. It was not.
+
+## What the profile said
+
+The CPU profile charged almost all of the time to this line:
+
+```js
+function validate(data){return _vC(data)}
+```
+
+A one-line wrapper does not cost 900 µs. When a profile charges the caller,
+it is because the callee is running in the interpreter and V8 attributes
+its time upward. So I looked at the callee.
+
+The standalone module for a 30 KB version of this schema was 836 KB of
+JavaScript, and 652 KB of it was one function. For the full 169 KB schema the
+module was 4.8 MB, with a single 3.8 MB function in it.
+
+V8 does not optimize a function past a bytecode budget. The default is about
+60 KB of bytecode. A function over the limit is not optimized late or
+optimized badly; it is never considered. `--trace-opt` lists every function
+the optimizer looks at, and this one was not in the list. Raising the limit
+with `--max-optimized-bytecode-size` took the valid-path verdict from 71 µs to
+44 on the spot, which settled the diagnosis. You cannot ship a V8 flag to your
+users, but you can stop generating functions that size.
+
+The generator had always done this. A schema of a few hundred properties
+compiled to one function of a megabyte or more, and that function ran in the
+interpreter for its whole life. On small schemas the same generator produces a
+function of a few KB, V8 optimizes it, and it is as fast as anything you would
+write by hand. The speed I had been measuring was real. It just stopped at a
+schema size I had never measured.
+
+## How much was on the table
+
+Before changing the generator I wanted to know the ceiling. I compiled each of
+the 140 sections as a validator of its own, called all of them in turn, and
+summed the time, against the one monolithic validator. Same checks, same
+errors, same answer.
+
+| sections | one function | one per section |
+|---|---|---|
+| 25, validation only | 49 µs | 6.5 µs |
+| 140, validation only | 407 µs | 40 µs |
+
+Those are with the parse subtracted, since the parse is the same on both
+sides and for the 25-section document it was 26 µs on its own. Seven and a
+half times, and ten times. Not a micro-optimization.
+
+One measurement trap on the way: if you reuse the same parsed object for
+every call, the gap looks much smaller. I do not fully know why, and I did not
+chase it. Parse fresh on every call, the way a server does.
+
+## The fix
+
+A property whose subschema is large now becomes a function of its own,
+hoisted next to the main one and called where the property is checked. The
+decision is made on the schema's size, which is known before any code is
+written, so nothing is generated twice. A property schema over 2000 bytes
+always moves out. Past that, the budget rule: once a function holds 24 KB of
+inline code, every property over 220 bytes moves out too. A small or medium
+schema never crosses the budget, never splits, and pays no call.
+
+ata has three code generators, one for the verdict, one for the error list and
+one that does both in a single pass, and each had to learn this separately.
+Three entry points that must agree is the thing that has bitten this project
+most often, so the gate for this change was the whole of it: the official
+suite in three dialects, a differential that pins the three generators and
+the interpreter to identical error output, and 492 schemas from SchemaStore
+with 31,822 sample documents through both engines with zero differences.
+
+On the reported shape, 140 sections, fresh parse per call:
+
+| | before | after |
+|---|---|---|
+| verdict, runtime engine | 522 µs | 154 µs |
+| verdict and errors, runtime engine | 335 µs | 78 µs |
+| compiled module, invalid document | 891 µs | 152 µs |
+| compiled module, `validateJSON` with source positions | 1249 µs | 516 µs |
+
+The last row is the one from the report. The validator being replaced does
+the same document, parse included, in 504 µs. From 2.5 times slower to even,
+and the object-only path is now ahead, because the per-section functions are
+small enough to optimize and nothing else changed.
+
+## The second profile
+
+With the giant function gone, I profiled the same document again on the path
+that returns rich errors, and a quarter of what was left was computing source
+positions for 137 errors: the line and column of each one in the text, and a
+frame of the surrounding lines.
+
+Most callers never read them. A gateway reads the messages, maybe the paths,
+and returns 400. So positions are now resolved on the first read of a frame,
+once for the whole list, and an error whose frame nobody reads costs nothing.
+Reading the messages of those 137 errors went from 907 µs to 505.
+
+## What I am keeping from this
+
+Generated code has a size limit, and the limit is not on what you can
+generate, it is on what gets optimized. Nothing warns you. The function runs,
+the tests pass, and the profile charges the time to whoever called it.
+
+A benchmark suite made of small inputs tells you about small inputs. I had
+dozens of numbers and all of them agreed with each other, because all of them
+were on the same side of a line I did not know was there. One report from
+someone with a real schema was worth more than the lot.
+
+And the rule I already knew. The profile took ten minutes to read. The
+guessing took a day.
+
+This is in ata-validator 1.48.0. If you have a schema that is bigger than
+you would like, build it and look at the size of the largest function in the
+output. If it is over a few hundred KB, you have the same problem, whoever
+generated it.
+
+Thanks to the reader who wrote two reports with ratios in them. The second one
+is the reason this got found.

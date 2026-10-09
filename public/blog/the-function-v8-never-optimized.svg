@@ -1,0 +1,24 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14161F"/>
+      <stop offset="1" stop-color="#3B3560"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <!-- one giant block on the left of the right half, and the same code as many small ones -->
+  <rect x="760" y="120" width="120" height="390" rx="10" fill="#A9A2F0" fill-opacity="0.28" stroke="#C9C3FF" stroke-opacity="0.5" stroke-width="3"/>
+  <text x="820" y="330" fill="#F2F0FF" fill-opacity="0.8" font-size="22" font-family="Atkinson, Arial, sans-serif" text-anchor="middle">3.8 MB</text>
+  <g fill="#C9C3FF" fill-opacity="0.55" stroke="#C9C3FF" stroke-opacity="0.7" stroke-width="2">
+    <rect x="930" y="120" width="52" height="40" rx="6"/><rect x="996" y="120" width="52" height="40" rx="6"/><rect x="1062" y="120" width="52" height="40" rx="6"/>
+    <rect x="930" y="176" width="52" height="40" rx="6"/><rect x="996" y="176" width="52" height="40" rx="6"/><rect x="1062" y="176" width="52" height="40" rx="6"/>
+    <rect x="930" y="232" width="52" height="40" rx="6"/><rect x="996" y="232" width="52" height="40" rx="6"/><rect x="1062" y="232" width="52" height="40" rx="6"/>
+    <rect x="930" y="288" width="52" height="40" rx="6"/><rect x="996" y="288" width="52" height="40" rx="6"/><rect x="1062" y="288" width="52" height="40" rx="6"/>
+    <rect x="930" y="344" width="52" height="40" rx="6"/><rect x="996" y="344" width="52" height="40" rx="6"/><rect x="1062" y="344" width="52" height="40" rx="6"/>
+    <rect x="930" y="400" width="52" height="40" rx="6"/><rect x="996" y="400" width="52" height="40" rx="6"/><rect x="1062" y="400" width="52" height="40" rx="6"/>
+    <rect x="930" y="456" width="52" height="40" rx="6"/><rect x="996" y="456" width="52" height="40" rx="6"/><rect x="1062" y="456" width="52" height="40" rx="6"/>
+  </g>
+  <text x="88" y="270" fill="#F2F0FF" font-size="62" font-family="Atkinson, Arial, sans-serif" font-weight="700">The function</text>
+  <text x="88" y="350" fill="#C9C3FF" font-size="50" font-family="Atkinson, Arial, sans-serif">V8 never optimized</text>
+  <text x="88" y="430" fill="#A9A2F0" font-size="28" font-family="Atkinson, Arial, sans-serif">891 µs to 152 µs on a 169 KB schema</text>
+</svg>
